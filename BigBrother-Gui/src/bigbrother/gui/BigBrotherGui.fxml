@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="bigbrother.gui.BigBrotherGuiController">
+<AnchorPane id="AnchorPane" fx:id="rootPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bigbrother.gui.BigBrotherGuiController">
 <children><BorderPane layoutX="-7.0" layoutY="30.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 <center><SplitPane dividerPositions="0.29797979797979796" focusTraversable="true" prefHeight="160.0" prefWidth="200.0" xmlns:fx="http://javafx.com/fxml">
   <items>
@@ -16,5 +16,15 @@
 </children></AnchorPane>
   </items>
 </SplitPane>
-</center></BorderPane>
+</center>
+<top><MenuBar xmlns:fx="http://javafx.com/fxml">
+  <menus>
+    <Menu mnemonicParsing="false" text="Fichier">
+      <items><MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Explorer..." /><SeparatorMenuItem mnemonicParsing="false" />
+        <MenuItem mnemonicParsing="false" text="Fermer" />
+      </items>
+    </Menu>
+  </menus>
+</MenuBar>
+</top></BorderPane>
 </children></AnchorPane>
