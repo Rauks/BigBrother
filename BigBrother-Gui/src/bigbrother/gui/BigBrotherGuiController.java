@@ -38,7 +38,7 @@ public class BigBrotherGuiController implements Initializable {
     @FXML
     public ListView classesList;
     @FXML
-    public TreeView classesData;
+    public Pane dataPane;
     
     private FileChooser jarFileChooser;
     private ObservableList<Class> observablesClasses;
@@ -74,7 +74,7 @@ public class BigBrotherGuiController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         this.jarFileChooser = new FileChooser();
-        this.jarFileChooser.setTitle("Explorer...");
+        this.jarFileChooser.setTitle("Explorer");
         this.jarFileChooser.setInitialDirectory(
                 new File(System.getProperty("user.home"))
         );
