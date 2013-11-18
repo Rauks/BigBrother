@@ -8,6 +8,7 @@ package bigbrother.gui;
 
 import bigbrother.core.Scanner;
 import bigbrother.core.model.ObservableClass;
+import bigbrother.gui.treechart.TreeNodeController;
 import de.chimos.ui.treechart.layout.NodePosition;
 import de.chimos.ui.treechart.layout.TreePane;
 import java.io.File;
@@ -30,7 +31,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -103,7 +107,20 @@ public class BigBrotherGuiController implements Initializable {
         this.classesList.setItems(this.observablesClasses);
         
         this.initializeTreeChart();
-    }    
+    }
+    
+    private Node loadTreeNode(ObservableClass classe){
+        Node element = null;
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("treechart/TreeNode.fxml"));
+            element = (Node) fxmlLoader.load();
+            TreeNodeController elementController = fxmlLoader.<TreeNodeController>getController();
+            elementController.setObservation(classe);
+        } catch (IOException ex) {
+            Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return element;
+    }
     
     private void initializeTreeChart(){
         TreePane treePane = new TreePane();
@@ -131,7 +148,7 @@ public class BigBrotherGuiController implements Initializable {
     }
     
     private static Random random = new Random();
-    private static void generateTreeItems(TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) {
+    private void generateTreeItems(TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) {
         if (parentPosition.getLevel() >= maxLevel) {
             return;
         }
@@ -142,33 +159,8 @@ public class BigBrotherGuiController implements Initializable {
         for (int i = 0, j = random.nextInt(maxChildrenBias1 + 1) + maxChildrenBias2; i < j; ++i) {
             NodePosition position = parentPosition.getChild(i);
 
-            String labelText = "Node ";
-
-            for (int pathElement : position.getPath()) {
-                labelText += "." + pathElement;
-            }
-            if (random.nextInt() % 3 == 0) {
-                labelText += "\nYes!";
-            }
-            if (random.nextInt() % 3 == 0) {
-                labelText += "\nNo!";
-            }
-            final Label label = new Label(labelText);
-            label.setTextAlignment(TextAlignment.CENTER);
-            label.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                private RotateTransition rotation = RotateTransitionBuilder.create()
-                        .byAngle(180).autoReverse(true).cycleCount(2)
-                        .duration(Duration.seconds(1))
-                        .node(label)
-                        .build();
-
-                @Override
-                public void handle(MouseEvent event) {
-                    rotation.play();
-                }
-            });
-
-            treePane.addChild(label, position);
+            final Node node = this.loadTreeNode(new ObservableClass(this.getClass()));
+            treePane.addChild(node, position);
 
             generateTreeItems(treePane, position, maxChildren, maxLevel);
         }
