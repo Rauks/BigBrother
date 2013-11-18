@@ -28,6 +28,8 @@ import javafx.animation.KeyValue;
 import javafx.animation.RotateTransition;
 import javafx.animation.RotateTransitionBuilder;
 import javafx.animation.TimelineBuilder;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -60,8 +62,6 @@ public class BigBrotherGuiController implements Initializable {
     public ListView classesList;
     @FXML
     public ScrollPane scrollPane;
-    @FXML
-    public Pane dataPane;
     
     private FileChooser jarFileChooser;
     private ObservableList<ObservableClass> observablesClasses;
@@ -131,6 +131,20 @@ public class BigBrotherGuiController implements Initializable {
         
         this.observablesClasses = FXCollections.observableArrayList();
         this.classesList.setItems(this.observablesClasses);
+
+        //Class selection
+        this.classesList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if(newValue != null){
+                    System.out.println(newValue);
+                    BigBrotherGuiController.this.loadTreeChart((ObservableClass) newValue);
+                }
+                else{
+                    BigBrotherGuiController.this.unloadTreeChart();
+                }
+            }
+        });
     }
     
     /**
@@ -139,6 +153,7 @@ public class BigBrotherGuiController implements Initializable {
      * @param classe The classe as root of the tree.
      */
     private void loadTreeChart(ObservableClass classe){
+        this.unloadTreeChart();
         TreePane treePane = new TreePane();
         treePane.yAxisSpacingProperty().set(5.0);
 
@@ -147,24 +162,9 @@ public class BigBrotherGuiController implements Initializable {
         
         //Tree branches
         //TODO: Change tree limits to options.
-        this.loadTreeNodeChildren(classe, treePane, NodePosition.ROOT, 10, 10);
+        this.loadTreeNodeChildren(classe, treePane, NodePosition.ROOT, 7, 3);
 
-        this.dataPane.getChildren().add(treePane);
-
-//        TimelineBuilder.create()
-//                .keyFrames(
-//                        new KeyFrame(
-//                                Duration.seconds(5),
-//                                new KeyValue(
-//                                        treePane.yAxisSpacingProperty(),
-//                                        65.0,
-//                                        Interpolator.LINEAR
-//                                )
-//                        )
-//                )
-//                .cycleCount(1)
-//                .build()
-//                .play();
+        this.scrollPane.setContent(treePane);
     }
     
     /**
@@ -187,6 +187,22 @@ public class BigBrotherGuiController implements Initializable {
     }
     
     /**
+     * Build a ellipsis node.
+     * 
+     * @return A ellipsis Node.
+     */
+    private Node loadEllipsisTreeNode(){
+        Node element = null;
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("treechart/TreeNodeEllipsis.fxml"));
+            element = (Node) fxmlLoader.load();
+        } catch (IOException ex) {
+            Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return element;
+    }
+    
+    /**
      * Build the children of a {@link TreeNode} using {@link ObservableClasse} fields informations.
      * 
      * @param classe The class which fields are used to build the children nodes.
@@ -197,26 +213,37 @@ public class BigBrotherGuiController implements Initializable {
      */
     private void loadTreeNodeChildren(ObservableClass classe, TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) {
         if (parentPosition.getLevel() >= maxLevel) {
-            final Node node = new Label("...");
+            final Node node = this.loadEllipsisTreeNode();
             treePane.addChild(node, parentPosition.getChild(0));
+            Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Max level reached.");
         }
         else{
             int childIndex = 0;
             for (ObservableField field : classe.getFields()) {
+                NodePosition position = parentPosition.getChild(childIndex);
                 if(childIndex >= maxChildren){
-                    final Node node = new Label("...");
-                    treePane.addChild(node, parentPosition.getChild(0));
+                    final Node node = this.loadEllipsisTreeNode();
+                    treePane.addChild(node, position);
+                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Max children reached.");
                     return;
                 }
                 else{
-                    NodePosition position = parentPosition.getChild(childIndex);
+                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Building child ({0}.{1}).", new Object[]{parentPosition.getLevel(), childIndex});
                     ObservableClass fieldType = field.getType();
                     final Node node = this.loadTreeNode(fieldType);
                     treePane.addChild(node, position);
+                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Child builded.");
                     this.loadTreeNodeChildren(fieldType, treePane, position, maxChildren, maxLevel);
-                    childIndex++;
                 }
+                childIndex++;
             }
         }
+    }
+    
+    /**
+     * Clear the tree chart view.
+     */
+    public void unloadTreeChart(){
+        this.scrollPane.setContent(new Pane());
     }
 }

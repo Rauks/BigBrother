@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" minHeight="200.0" minWidth="150.0" prefHeight="200.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bigbrother.gui.treechart.TreeNodeEllipsisController">
+<children><TitledPane fx:id="titlePane" alignment="CENTER" animated="false" collapsible="false" contentDisplay="LEFT" expanded="false" text="..." textAlignment="LEFT" textOverrun="ELLIPSIS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns:fx="http://javafx.com/fxml">
+<content><ListView fx:id="methodsList" />
+</content>
+</TitledPane>
+</children></AnchorPane>

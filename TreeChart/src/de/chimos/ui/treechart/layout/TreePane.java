@@ -373,6 +373,13 @@ public class TreePane extends Region {
 
         layoutChildren();
     }
+    
+    public void clearChildren(){
+        getChildren().clear();
+        getManagedChildren().clear();
+                
+        layoutChildren();
+    }
 
     private Map<Node, NodePosition> _positionByNode = new HashMap<>();
     private Map<NodePosition, Node> _nodeByPosition = new HashMap<>();
