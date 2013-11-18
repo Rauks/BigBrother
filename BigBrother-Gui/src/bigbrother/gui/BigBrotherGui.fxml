@@ -11,7 +11,7 @@
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
 <children><ListView fx:id="classesList" layoutX="-3.0" layoutY="122.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
 </children></AnchorPane><ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" xmlns:fx="http://javafx.com/fxml">
-<content><AnchorPane fx:id="dataPane" prefHeight="100.0" prefWidth="100.0" />
+<content><AnchorPane fx:id="" prefHeight="100.0" prefWidth="100.0" />
 </content>
 </ScrollPane>
   </items>
@@ -19,11 +19,15 @@
 </center>
 <top><MenuBar xmlns:fx="http://javafx.com/fxml">
   <menus>
-    <Menu mnemonicParsing="false" text="Fichier">
-      <items><MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Explorer..." /><SeparatorMenuItem mnemonicParsing="false" />
-        <MenuItem mnemonicParsing="false" onAction="#handleClose" text="Fermer" />
+    <Menu text="Fichier">
+      <items><MenuItem onAction="#handleOpen" text="Explorer..." /><SeparatorMenuItem mnemonicParsing="false" />
+        <MenuItem onAction="#handleClose" text="Fermer" />
       </items>
-    </Menu>
+    </Menu><Menu text="Options">
+  <items>
+    <MenuItem onAction="#handleZoomIn" text="Zoom +" /><MenuItem onAction="#handleZoomOut" text="Zoom -" />
+  </items>
+</Menu>
   </menus>
 </MenuBar>
 </top></BorderPane>

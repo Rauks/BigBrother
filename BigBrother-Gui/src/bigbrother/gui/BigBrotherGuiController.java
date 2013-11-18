@@ -46,6 +46,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -60,6 +61,10 @@ import javafx.util.Duration;
  * @author Karl
  */
 public class BigBrotherGuiController implements Initializable {
+    private static final double ZOOM_MAX_SCALE = 1d;
+    private static final double ZOOM_MIN_SCALE = .5d;
+    private static final double ZOOM_DELTA = .1d;
+        
     @FXML
     public Pane rootPane;
     @FXML
@@ -117,10 +122,25 @@ public class BigBrotherGuiController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+            
         this.scrollPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent me) {
                 BigBrotherGuiController.this.scrollPane.requestFocus();
+            }
+        });
+        this.scrollPane.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>(){
+            @Override
+            public void handle(ScrollEvent t) {
+                if (t.isControlDown()) {
+                    if(t.getDeltaY() > 0){
+                        BigBrotherGuiController.this.handleZoomIn();
+                    }
+                    else{
+                        BigBrotherGuiController.this.handleZoomOut();
+                    }
+                    t.consume();
+                }
             }
         });
         
@@ -189,6 +209,32 @@ public class BigBrotherGuiController implements Initializable {
             }
         });
         
+    }
+    
+    @FXML
+    public void handleZoomIn(){
+        this.doZoom(ZOOM_DELTA);
+    }
+    
+    @FXML
+    public void handleZoomOut(){
+        this.doZoom(-ZOOM_DELTA);
+    }
+    
+    private void doZoom(double delta) {
+        final Node scrollContent = this.scrollPane.getContent();
+        
+        double scale = scrollContent.getScaleX() + delta;
+
+        if (scale <= ZOOM_MIN_SCALE) {
+            scale = ZOOM_MIN_SCALE;
+        }
+        else if (scale >= ZOOM_MAX_SCALE) {
+            scale = ZOOM_MAX_SCALE;
+        }
+        
+        scrollContent.setScaleX(scale);
+        scrollContent.setScaleY(scale);
     }
     
     /**
