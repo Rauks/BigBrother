@@ -60,7 +60,9 @@ public class BigBrotherGuiController implements Initializable {
     @FXML
     public void handleOpen(){
         File jarFile = this.jarFileChooser.showOpenDialog(this.getScene().getWindow());
-        this.doScan(jarFile.getPath());
+        if(jarFile != null && jarFile.canRead()){
+            this.doScan(jarFile.getPath());
+        }
     }
     
     public void doScan(String jarFilePath){
