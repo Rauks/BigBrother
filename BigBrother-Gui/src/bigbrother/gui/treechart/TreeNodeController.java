@@ -51,7 +51,7 @@ public class TreeNodeController implements Initializable {
     
     public void setObservation(ObservableClass classe){
         this.classe = classe;
-        this.title.setValue(this.classe.getName());
+        this.title.setValue(this.classe.getSimpleName());
         this.observablesMethods.addAll(this.classe.getMethods());
     }
 }
