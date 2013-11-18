@@ -7,6 +7,7 @@
 package bigbrother.gui;
 
 import bigbrother.core.Scanner;
+import bigbrother.core.model.ObservableClass;
 import de.chimos.ui.treechart.layout.NodePosition;
 import de.chimos.ui.treechart.layout.TreePane;
 import java.io.File;
@@ -55,7 +56,7 @@ public class BigBrotherGuiController implements Initializable {
     public Pane dataPane;
     
     private FileChooser jarFileChooser;
-    private ObservableList<Class> observablesClasses;
+    private ObservableList<ObservableClass> observablesClasses;
 
     @FXML
     public void handleOpen(){

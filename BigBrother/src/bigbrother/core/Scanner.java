@@ -5,9 +5,7 @@
  */
 package bigbrother.core;
 
-import bigbrother.annotation.BigBrother;
-import java.io.File;
-import java.io.FilenameFilter;
+import bigbrother.core.model.ObservableClass;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -24,7 +22,7 @@ import java.util.logging.Logger;
  * @author Karl
  */
 public class Scanner {
-    private List<Class> loadedClasses = new ArrayList<>();
+    private List<ObservableClass> loadedClasses = new ArrayList<>();
     
     /**
      * Load a jar file and load all contained classes.
@@ -42,37 +40,20 @@ public class Scanner {
         URLClassLoader classLoader = URLClassLoader.newInstance(urls);
 
         while (entries.hasMoreElements()) {
+            JarEntry jarEntry = (JarEntry) entries.nextElement();
+            if(jarEntry.isDirectory() || !jarEntry.getName().endsWith(".class")){
+                continue;
+            }
+            // -6 because of .class
+            String className = jarEntry.getName().substring(0, jarEntry.getName().length()-6);
+            className = className.replace('/', '.');
             try {
-                JarEntry jarEntry = (JarEntry) entries.nextElement();
-                if(jarEntry.isDirectory() || !jarEntry.getName().endsWith(".class")){
-                    continue;
-                }
-                // -6 because of .class
-                String className = jarEntry.getName().substring(0, jarEntry.getName().length()-6);
-                className = className.replace('/', '.');
                 Class c = classLoader.loadClass(className);
-                this.loadedClasses.add(c);
+                this.loadedClasses.add(new ObservableClass(c));
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Scanner.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-    
-    /**
-     * Return the list of classes annotated with the {@link BigBrother} annotation in the jar.
-     * 
-     * @return The list of annotated classes finded.
-     * 
-     * @see BigBrother
-     */
-    public List<Class> getAnnotatedClasses(){
-        ArrayList<Class> classes = new ArrayList<>();
-        for(Class classe : this.loadedClasses){
-            if(classe.isAnnotationPresent(BigBrother.class)){
-                classes.add(classe);
-            }
-        }
-        return classes;
     }
 
     /**
@@ -80,7 +61,7 @@ public class Scanner {
      * 
      * @return The list of classes.
      */
-    public List<Class> getClasses(){
+    public List<ObservableClass> getClasses(){
         return this.loadedClasses;
     }
 }
