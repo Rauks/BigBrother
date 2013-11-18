@@ -38,6 +38,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -56,6 +57,8 @@ public class BigBrotherGuiController implements Initializable {
     public Pane rootPane;
     @FXML
     public ListView classesList;
+    @FXML
+    public ScrollPane scrollPane;
     @FXML
     public Pane dataPane;
     
@@ -94,6 +97,13 @@ public class BigBrotherGuiController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.scrollPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent me) {
+                BigBrotherGuiController.this.scrollPane.requestFocus();
+            }
+        });
+        
         this.jarFileChooser = new FileChooser();
         this.jarFileChooser.setTitle("Explorer");
         this.jarFileChooser.setInitialDirectory(
