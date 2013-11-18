@@ -8,6 +8,7 @@ package bigbrother.gui;
 
 import bigbrother.core.Scanner;
 import bigbrother.core.model.ObservableClass;
+import bigbrother.core.model.ObservableField;
 import bigbrother.gui.treechart.TreeNodeController;
 import de.chimos.ui.treechart.layout.NodePosition;
 import de.chimos.ui.treechart.layout.TreePane;
@@ -65,6 +66,9 @@ public class BigBrotherGuiController implements Initializable {
     private FileChooser jarFileChooser;
     private ObservableList<ObservableClass> observablesClasses;
 
+    /**
+     * Prompt the a open dialog and call {@link BigBrotherGuiController#doScan(java.lang.String)} with the selected file.
+     */
     @FXML
     public void handleOpen(){
         File jarFile = this.jarFileChooser.showOpenDialog(this.getScene().getWindow());
@@ -73,6 +77,10 @@ public class BigBrotherGuiController implements Initializable {
         }
     }
     
+    /**
+     * Scan a jar file in order to retrieve all classes.
+     * @param jarFilePath The jar file path.
+     */
     public void doScan(String jarFilePath){
         this.observablesClasses.clear();
         try {
@@ -83,11 +91,19 @@ public class BigBrotherGuiController implements Initializable {
         }
     }
     
+    /**
+     * Close the application.
+     */
     @FXML
     public void handleClose(){
         System.exit(0);
     }
     
+    /**
+     * Get the main scene.
+     * 
+     * @return The main scene. 
+     */
     protected Scene getScene(){
         return this.rootPane.getScene();
     }
@@ -115,10 +131,48 @@ public class BigBrotherGuiController implements Initializable {
         
         this.observablesClasses = FXCollections.observableArrayList();
         this.classesList.setItems(this.observablesClasses);
-        
-        this.initializeTreeChart();
     }
     
+    /**
+     * Load the complete tree builded from a {@link ObservableClass} into the gui.
+     * 
+     * @param classe The classe as root of the tree.
+     */
+    private void loadTreeChart(ObservableClass classe){
+        TreePane treePane = new TreePane();
+        treePane.yAxisSpacingProperty().set(5.0);
+
+        //Tree root
+        treePane.addChild(this.loadTreeNode(classe), NodePosition.ROOT);
+        
+        //Tree branches
+        //TODO: Change tree limits to options.
+        this.loadTreeNodeChildren(classe, treePane, NodePosition.ROOT, 10, 10);
+
+        this.dataPane.getChildren().add(treePane);
+
+//        TimelineBuilder.create()
+//                .keyFrames(
+//                        new KeyFrame(
+//                                Duration.seconds(5),
+//                                new KeyValue(
+//                                        treePane.yAxisSpacingProperty(),
+//                                        65.0,
+//                                        Interpolator.LINEAR
+//                                )
+//                        )
+//                )
+//                .cycleCount(1)
+//                .build()
+//                .play();
+    }
+    
+    /**
+     * Build a node with informations of a {@link ObservableClass}.
+     * 
+     * @param classe The classe used to build the node.
+     * @return A Node with class informations.
+     */
     private Node loadTreeNode(ObservableClass classe){
         Node element = null;
         try {
@@ -132,47 +186,37 @@ public class BigBrotherGuiController implements Initializable {
         return element;
     }
     
-    private void initializeTreeChart(){
-        TreePane treePane = new TreePane();
-        treePane.yAxisSpacingProperty().set(10.0);
-
-        treePane.addChild(new Label("Root Node"), NodePosition.ROOT);
-        generateTreeItems(treePane, NodePosition.ROOT, 3, 7);
-
-        this.dataPane.getChildren().add(treePane);
-
-        TimelineBuilder.create()
-                .keyFrames(
-                        new KeyFrame(
-                                Duration.seconds(5),
-                                new KeyValue(
-                                        treePane.yAxisSpacingProperty(),
-                                        65.0,
-                                        Interpolator.LINEAR
-                                )
-                        )
-                )
-                .cycleCount(1)
-                .build()
-                .play();
-    }
-    
-    private static Random random = new Random();
-    private void generateTreeItems(TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) {
+    /**
+     * Build the children of a {@link TreeNode} using {@link ObservableClasse} fields informations.
+     * 
+     * @param classe The class which fields are used to build the children nodes.
+     * @param treePane The tree where the children are added.
+     * @param parentPosition The parent node.
+     * @param maxChildren Children number limit.
+     * @param maxLevel Tree level limit.
+     */
+    private void loadTreeNodeChildren(ObservableClass classe, TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) {
         if (parentPosition.getLevel() >= maxLevel) {
-            return;
+            final Node node = new Label("...");
+            treePane.addChild(node, parentPosition.getChild(0));
         }
-
-        int maxChildrenBias1 = parentPosition.getLevel();
-        int maxChildrenBias2 = maxChildren - maxChildrenBias1;
-
-        for (int i = 0, j = random.nextInt(maxChildrenBias1 + 1) + maxChildrenBias2; i < j; ++i) {
-            NodePosition position = parentPosition.getChild(i);
-
-            final Node node = this.loadTreeNode(new ObservableClass(this.getClass()));
-            treePane.addChild(node, position);
-
-            generateTreeItems(treePane, position, maxChildren, maxLevel);
+        else{
+            int childIndex = 0;
+            for (ObservableField field : classe.getFields()) {
+                if(childIndex >= maxChildren){
+                    final Node node = new Label("...");
+                    treePane.addChild(node, parentPosition.getChild(0));
+                    return;
+                }
+                else{
+                    NodePosition position = parentPosition.getChild(childIndex);
+                    ObservableClass fieldType = field.getType();
+                    final Node node = this.loadTreeNode(fieldType);
+                    treePane.addChild(node, position);
+                    this.loadTreeNodeChildren(fieldType, treePane, position, maxChildren, maxLevel);
+                    childIndex++;
+                }
+            }
         }
     }
 }
