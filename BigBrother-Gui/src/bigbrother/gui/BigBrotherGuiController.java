@@ -40,14 +40,18 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.util.Callback;
 import javafx.util.Duration;
 
 /**
@@ -145,6 +149,46 @@ public class BigBrotherGuiController implements Initializable {
                 }
             }
         });
+        this.classesList.setCellFactory(new Callback<ListView<ObservableClass>, ListCell<ObservableClass>>(){
+            @Override
+            public ListCell<ObservableClass> call(ListView<ObservableClass> p) {
+                final Tooltip tooltip = new Tooltip();
+                final ListCell<ObservableClass> cell = new ListCell<ObservableClass>() {
+                @Override
+                public void updateItem(ObservableClass item, boolean empty) {
+                    super.updateItem(item, empty);
+                    
+                    if (!empty) {
+                        this.setText(item.getName());
+                        
+                        switch(item.getType()){
+                            case ANNOTATION:
+                                this.setTextFill(Color.DARKBLUE);
+                                break;
+                            case ENUMERATION:
+                                this.setTextFill(Color.DARKGREEN);
+                                break;
+                            case INTERFACE:
+                                this.setTextFill(Color.DARKORANGE);
+                                break;
+                            case CLASS_ANONYMOUS:
+                            case CLASS_SYNTHETIC:
+                                this.setTextFill(Color.GRAY);
+                                break;
+                            default:
+                                this.setTextFill(Color.BLACK);
+                                break;
+                        }
+                        
+                        tooltip.setText(item.getType().getName());
+                        this.setTooltip(tooltip);
+                    }
+                }
+                }; // ListCell
+                return cell;
+            }
+        });
+        
     }
     
     /**
