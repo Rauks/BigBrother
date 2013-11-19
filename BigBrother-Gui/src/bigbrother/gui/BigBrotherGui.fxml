@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -20,11 +21,30 @@
   </menus>
 </MenuBar>
 </top>
-<left><ListView fx:id="classesList" layoutX="-3.0" layoutY="122.0" prefHeight="200.0" prefWidth="220.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+<left><ListView fx:id="classesList" layoutX="-3.0" layoutY="122.0" prefHeight="200.0" prefWidth="220.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<BorderPane.margin>
+<Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+</BorderPane.margin></ListView>
 </left>
-<center><ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" xmlns:fx="http://javafx.com/fxml">
+<center><ScrollPane fx:id="scrollPane" xmlns:fx="http://javafx.com/fxml">
 <content><AnchorPane fx:id="" prefHeight="100.0" prefWidth="100.0" />
 </content>
+<BorderPane.margin>
+<Insets bottom="2.0" right="2.0" top="2.0" />
+</BorderPane.margin>
 </ScrollPane>
-</center></BorderPane>
+</center>
+<bottom><BorderPane BorderPane.alignment="CENTER">
+<right><HBox alignment="CENTER_RIGHT">
+<children><Label fx:id="bottomMessage" />
+</children></HBox>
+</right>
+<left><HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+<children><Label text="Loading : " /><ProgressBar fx:id="progressBar" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="12.0" prefWidth="300.0" progress="0.0" />
+</children></HBox>
+</left>
+<padding>
+<Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+</padding></BorderPane>
+</bottom></BorderPane>
 </children></AnchorPane>

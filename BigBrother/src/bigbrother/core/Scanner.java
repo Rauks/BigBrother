@@ -23,6 +23,7 @@ import java.util.logging.Logger;
  */
 public class Scanner {
     private List<ObservableClass> loadedClasses = new ArrayList<>();
+    private boolean encouredError = false;
     
     /**
      * Load a jar file and load all contained classes.
@@ -49,9 +50,13 @@ public class Scanner {
             className = className.replace('/', '.');
             try {
                 Class c = classLoader.loadClass(className);
+                c.isAnonymousClass(); //To provoque NoClassDefFoundError in case of incomplete loading.
                 this.loadedClasses.add(new ObservableClass(c));
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Scanner.class.getName()).log(Level.SEVERE, null, ex);
+            } catch(NoClassDefFoundError ex){
+                Logger.getLogger(Scanner.class.getName()).log(Level.INFO, null, ex);
+                this.encouredError = true;
             }
         }
     }
@@ -63,5 +68,14 @@ public class Scanner {
      */
     public List<ObservableClass> getClasses(){
         return this.loadedClasses;
+    }
+    
+    /**
+     * Return true if a {@link NoClassDefFoundError} encoured during the scanning and classes loading process.
+     * 
+     * @return Return true if an error encoured.
+     */
+    public boolean encouredError(){
+        return this.encouredError;
     }
 }

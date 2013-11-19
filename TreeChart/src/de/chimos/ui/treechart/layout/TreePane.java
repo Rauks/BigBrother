@@ -411,6 +411,10 @@ public class TreePane extends Region {
                 
         layoutChildren();
     }
+    
+    public boolean isChildrenEmpty(){
+        return getChildren().isEmpty();
+    }
 
     private Map<Node, NodePosition> _positionByNode = new HashMap<>();
     private Map<NodePosition, Node> _nodeByPosition = new HashMap<>();

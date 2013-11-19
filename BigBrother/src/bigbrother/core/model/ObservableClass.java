@@ -85,18 +85,28 @@ public class ObservableClass {
         return Type.CLASS;
     }
     
-    public List<ObservableMethod> getMethods(){
+    public List<ObservableMethod> getMethods() throws ObservableClassException{
         List<ObservableMethod> list = new ArrayList<>();
-        for(Method method : this.classe.getDeclaredMethods()){
-            list.add(new ObservableMethod(method));
+        try{
+            for(Method method : this.classe.getDeclaredMethods()){
+                list.add(new ObservableMethod(method));
+            }
+        }
+        catch(NoClassDefFoundError ex){
+            throw new ObservableClassException("Classe indéfinie.");
         }
         return list;
     }
     
-    public List<ObservableField> getFields(){
+    public List<ObservableField> getFields() throws ObservableClassException{
         List<ObservableField> list = new ArrayList<>();
-        for(Field field : this.classe.getDeclaredFields()){
-            list.add(new ObservableField(field));
+        try{
+            for(Field field : this.classe.getDeclaredFields()){
+                list.add(new ObservableField(field));
+            }
+        }
+        catch(NoClassDefFoundError ex){
+            throw new ObservableClassException("Classe indéfinie.");
         }
         return list;
     }

@@ -7,10 +7,13 @@
 package bigbrother.gui.treechart;
 
 import bigbrother.core.model.ObservableClass;
+import bigbrother.core.model.ObservableClassException;
 import bigbrother.core.model.ObservableField;
 import bigbrother.core.model.ObservableMethod;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -131,8 +134,12 @@ public class TreeNodeController implements Initializable {
      */
     public void setObservation(ObservableClass classe){
         this.classe = classe;
-        this.title.setValue(this.classe.getSimpleName());
-        this.observablesMethods.addAll(this.classe.getMethods());
-        this.observablesFields.addAll(this.classe.getFields());
+        this.title.setValue(this.classe.getSimpleName().isEmpty()?this.classe.getName():this.classe.getSimpleName());
+        try {
+            this.observablesMethods.addAll(this.classe.getMethods());
+            this.observablesFields.addAll(this.classe.getFields());
+        } catch (ObservableClassException ex) {
+            Logger.getLogger(TreeNodeController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

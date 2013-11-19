@@ -8,6 +8,7 @@ package bigbrother.gui;
 
 import bigbrother.core.Scanner;
 import bigbrother.core.model.ObservableClass;
+import bigbrother.core.model.ObservableClassException;
 import bigbrother.core.model.ObservableField;
 import bigbrother.gui.treechart.TreeNodeController;
 import de.chimos.ui.treechart.layout.NodePosition;
@@ -28,6 +29,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.RotateTransition;
 import javafx.animation.RotateTransitionBuilder;
 import javafx.animation.TimelineBuilder;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -42,6 +44,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
@@ -71,9 +74,14 @@ public class BigBrotherGuiController implements Initializable {
     public ListView classesList;
     @FXML
     public ScrollPane scrollPane;
+    @FXML
+    public ProgressBar progressBar;
+    @FXML
+    public Label bottomMessage;
     
     private FileChooser jarFileChooser;
     private ObservableList<ObservableClass> observablesClasses;
+    private SimpleBooleanProperty loading;
 
     /**
      * Prompt the a open dialog and call {@link BigBrotherGuiController#doScan(java.lang.String)} with the selected file.
@@ -91,13 +99,22 @@ public class BigBrotherGuiController implements Initializable {
      * @param jarFilePath The jar file path.
      */
     public void doScan(String jarFilePath){
+        this.loading.set(true);
         this.observablesClasses.clear();
         try {
             Scanner scanner = new Scanner(jarFilePath);
             this.observablesClasses.addAll(scanner.getClasses());
+            
+            if(scanner.encouredError()){
+                this.bottomMessage.setTextFill(Color.DARKORANGE);
+                this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
+            }
         } catch (IOException ex) {
             Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.WARNING, null, ex);
+            this.bottomMessage.setTextFill(Color.DARKRED);
+            this.bottomMessage.setText("Exploration interrompue : Erreur IO.");
         }
+        this.loading.set(false);
     }
     
     /**
@@ -122,6 +139,10 @@ public class BigBrotherGuiController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.loading = new SimpleBooleanProperty(false);
+        
+        this.classesList.disableProperty().bind(this.loading);
+        this.scrollPane.disableProperty().bind(this.loading);
             
         this.scrollPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
@@ -243,6 +264,8 @@ public class BigBrotherGuiController implements Initializable {
      * @param classe The classe as root of the tree.
      */
     private void loadTreeChart(ObservableClass classe){
+        this.loading.set(true);
+        this.bottomMessage.setText("");
         this.unloadTreeChart();
         TreePane treePane = new TreePane();
         treePane.setXAxisSpacing(80d);
@@ -252,10 +275,16 @@ public class BigBrotherGuiController implements Initializable {
         treePane.addChild(this.loadTreeNode(classe), NodePosition.ROOT);
         
         //Tree branches
-        //TODO: Change tree limits to options.
-        this.loadTreeNodeChildren(classe, treePane, NodePosition.ROOT, 7, 3);
+        try {
+            this.loadTreeNodeChildren(classe, treePane, NodePosition.ROOT, 7, 3);
+        } catch (ObservableClassException ex) {
+            Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, null, ex);
+            this.bottomMessage.setTextFill(Color.DARKRED);
+            this.bottomMessage.setText("Arbre partiel : Classe indéfinie trouvée.");
+        }
 
         this.scrollPane.setContent(treePane);
+        this.loading.set(false);
     }
     
     /**
@@ -302,28 +331,25 @@ public class BigBrotherGuiController implements Initializable {
      * @param maxChildren Children number limit.
      * @param maxLevel Tree level limit.
      */
-    private void loadTreeNodeChildren(ObservableClass classe, TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) {
-        if (parentPosition.getLevel() >= maxLevel && !classe.getFields().isEmpty()) {
+    private void loadTreeNodeChildren(ObservableClass classe, TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) throws ObservableClassException {
+        List<ObservableField> fields = classe.getFields();
+        if (parentPosition.getLevel() >= maxLevel && !fields.isEmpty()) {
             final Node node = this.loadEllipsisTreeNode();
             treePane.addChild(node, parentPosition.getChild(0));
-            Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Max level reached.");
         }
         else{
             int childIndex = 0;
-            for (ObservableField field : classe.getFields()) {
+            for (ObservableField field : fields) {
                 NodePosition position = parentPosition.getChild(childIndex);
                 if(childIndex >= maxChildren){
                     final Node node = this.loadEllipsisTreeNode();
                     treePane.addChild(node, position);
-                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Max children reached.");
                     return;
                 }
                 else{
-                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Building child ({0}.{1}).", new Object[]{parentPosition.getLevel(), childIndex});
                     ObservableClass fieldType = field.getType();
                     final Node node = this.loadTreeNode(fieldType);
                     treePane.addChild(node, position);
-                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Child builded.");
                     this.loadTreeNodeChildren(fieldType, treePane, position, maxChildren, maxLevel);
                 }
                 childIndex++;
