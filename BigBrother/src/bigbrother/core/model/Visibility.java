@@ -11,8 +11,9 @@ package bigbrother.core.model;
  * @author Karl
  */
 public enum Visibility {
-    UNLOCKED("Publique"),
-    LOCKED("Privée/Protégée");
+    PUBLIC("Publique"),
+    PRIVATE("Privée"),
+    PROTECTED("Protégée");
      
     private final String name;
 

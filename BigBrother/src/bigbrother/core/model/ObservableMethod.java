@@ -7,6 +7,7 @@
 package bigbrother.core.model;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  *
@@ -28,10 +29,17 @@ public class ObservableMethod {
     }
     
     public Visibility getVisibility(){
-        if(this.method.isAccessible()){
-            return Visibility.UNLOCKED;
+        if(Modifier.isPrivate(this.method.getModifiers())){
+            return Visibility.PRIVATE;
         }
-        return Visibility.LOCKED;
+        if(Modifier.isProtected(this.method.getModifiers())){
+            return Visibility.PROTECTED;
+        }
+        return Visibility.PUBLIC;
+    }
+    
+    public boolean isStatic(){
+        return Modifier.isStatic(this.method.getModifiers());
     }
     
     @Override
