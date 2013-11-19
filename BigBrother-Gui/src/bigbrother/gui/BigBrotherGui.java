@@ -25,6 +25,7 @@ public class BigBrotherGui extends Application {
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
+        stage.setTitle("BigBrother");
         stage.show();
     }
 
