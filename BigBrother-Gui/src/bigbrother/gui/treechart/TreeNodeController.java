@@ -22,6 +22,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
@@ -51,6 +52,7 @@ public class TreeNodeController implements Initializable {
         this.methodsList.setCellFactory(new Callback<ListView<ObservableMethod>, ListCell<ObservableMethod>>(){
             @Override
             public ListCell<ObservableMethod> call(ListView<ObservableMethod> p) {
+                final Tooltip tooltip = new Tooltip();
                 final ListCell<ObservableMethod> cell = new ListCell<ObservableMethod>() {
                     @Override
                     public void updateItem(ObservableMethod item, boolean empty){
@@ -68,7 +70,11 @@ public class TreeNodeController implements Initializable {
                                     this.setTextFill(Color.DARKORANGE);
                                     break;
                             }
+                            
                             this.setUnderline(item.isStatic());
+                            
+                            tooltip.setText(item.getVisibility().getName());
+                            this.setTooltip(tooltip);
                         }
                     }
                 };
