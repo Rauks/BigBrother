@@ -10,6 +10,7 @@ import bigbrother.core.Scanner;
 import bigbrother.core.model.ObservableClass;
 import bigbrother.core.model.ObservableClassException;
 import bigbrother.core.model.ObservableField;
+import bigbrother.gui.tasks.ScannerTask;
 import bigbrother.gui.treechart.TreeNodeController;
 import de.chimos.ui.treechart.layout.NodePosition;
 import de.chimos.ui.treechart.layout.TreePane;
@@ -21,6 +22,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Interpolator;
@@ -34,6 +37,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -100,21 +104,43 @@ public class BigBrotherGuiController implements Initializable {
      */
     public void doScan(String jarFilePath){
         this.loading.set(true);
+        this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         this.observablesClasses.clear();
-        try {
-            Scanner scanner = new Scanner(jarFilePath);
-            this.observablesClasses.addAll(scanner.getClasses());
-            
+        
+        ScannerTask scannerBuilder = new ScannerTask(jarFilePath);
+        scannerBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+            @Override
+            public void handle(WorkerStateEvent t) {
+                
+            Scanner scanner = (Scanner) t.getSource().getValue();
+            BigBrotherGuiController.this.observablesClasses.addAll(scanner.getClasses());
+
             if(scanner.encouredError()){
-                this.bottomMessage.setTextFill(Color.DARKORANGE);
-                this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
+                BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKORANGE);
+                BigBrotherGuiController.this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
             }
-        } catch (IOException ex) {
-            Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.WARNING, null, ex);
-            this.bottomMessage.setTextFill(Color.DARKRED);
-            this.bottomMessage.setText("Exploration interrompue : Erreur IO.");
-        }
-        this.loading.set(false);
+            
+            BigBrotherGuiController.this.progressBar.setProgress(1d);
+            BigBrotherGuiController.this.loading.set(false);
+            }
+        });
+        scannerBuilder.setOnFailed(new EventHandler<WorkerStateEvent>(){
+            @Override
+            public void handle(WorkerStateEvent t) {
+                
+            BigBrotherGuiController.this.progressBar.setProgress(1d);
+            BigBrotherGuiController.this.loading.set(false);
+            }
+        });
+        scannerBuilder.setOnCancelled(new EventHandler<WorkerStateEvent>(){
+            @Override
+            public void handle(WorkerStateEvent t) {
+                
+            BigBrotherGuiController.this.progressBar.setProgress(1d);
+            BigBrotherGuiController.this.loading.set(false);
+            }
+        });
+        new Thread(scannerBuilder).start();
     }
     
     /**
