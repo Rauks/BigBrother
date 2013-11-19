@@ -303,7 +303,7 @@ public class BigBrotherGuiController implements Initializable {
      * @param maxLevel Tree level limit.
      */
     private void loadTreeNodeChildren(ObservableClass classe, TreePane treePane, NodePosition parentPosition, int maxChildren, int maxLevel) {
-        if (parentPosition.getLevel() >= maxLevel) {
+        if (parentPosition.getLevel() >= maxLevel && !classe.getFields().isEmpty()) {
             final Node node = this.loadEllipsisTreeNode();
             treePane.addChild(node, parentPosition.getChild(0));
             Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, "TreeBuilding: Max level reached.");
