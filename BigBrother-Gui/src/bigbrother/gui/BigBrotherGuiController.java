@@ -278,6 +278,8 @@ public class BigBrotherGuiController implements Initializable {
     
     private void loadTreeChart(ObservableClass classe){
         this.loading.set(true);
+        this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+        
         this.bottomMessage.setText("");
         this.unloadTreeChart();
         
@@ -291,6 +293,7 @@ public class BigBrotherGuiController implements Initializable {
                 BigBrotherGuiController.this.bottomMessage.setTextFill(treeChart.getMessageColor());
                 BigBrotherGuiController.this.bottomMessage.setText(treeChart.getMessage());
 
+                BigBrotherGuiController.this.progressBar.setProgress(1.0d);
                 BigBrotherGuiController.this.loading.set(false);
             }
         });
@@ -300,6 +303,7 @@ public class BigBrotherGuiController implements Initializable {
                 BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKRED);
                 BigBrotherGuiController.this.bottomMessage.setText("Erreur de construction de l'arbre.");
                 
+                BigBrotherGuiController.this.progressBar.setProgress(1.0d);
                 BigBrotherGuiController.this.loading.set(false);
             }
         });
