@@ -245,7 +245,8 @@ public class BigBrotherGuiController implements Initializable {
     private void loadTreeChart(ObservableClass classe){
         this.unloadTreeChart();
         TreePane treePane = new TreePane();
-        treePane.yAxisSpacingProperty().set(5.0);
+        treePane.setXAxisSpacing(80d);
+        treePane.setYAxisSpacing(100d);
 
         //Tree root
         treePane.addChild(this.loadTreeNode(classe), NodePosition.ROOT);

@@ -7,6 +7,7 @@
 package bigbrother.gui.treechart;
 
 import bigbrother.core.model.ObservableClass;
+import bigbrother.core.model.ObservableField;
 import bigbrother.core.model.ObservableMethod;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,11 +35,13 @@ import javafx.util.Callback;
 public class TreeNodeController implements Initializable {
     @FXML
     public TitledPane titlePane;
-    
+    @FXML
+    public ListView fieldsList;
     @FXML
     public ListView methodsList;
         
     private ObservableClass classe;
+    private ObservableList<ObservableField> observablesFields;
     private ObservableList<ObservableMethod> observablesMethods;
     private SimpleStringProperty title;
     
@@ -82,6 +85,41 @@ public class TreeNodeController implements Initializable {
             }
         });
         
+        this.observablesFields = FXCollections.observableArrayList();
+        this.fieldsList.setItems(this.observablesFields);
+        this.fieldsList.setCellFactory(new Callback<ListView<ObservableField>, ListCell<ObservableField>>(){
+            @Override
+            public ListCell<ObservableField> call(ListView<ObservableField> p) {
+                final Tooltip tooltip = new Tooltip();
+                final ListCell<ObservableField> cell = new ListCell<ObservableField>() {
+                    @Override
+                    public void updateItem(ObservableField item, boolean empty){
+                        super.updateItem(item, empty);
+                        if(!empty){
+                            this.setText(item.getName() + " : " + item.getType().getSimpleName());
+                            switch(item.getVisibility()){
+                                case PRIVATE:
+                                    this.setTextFill(Color.DARKRED);
+                                    break;
+                                case PUBLIC:
+                                    this.setTextFill(Color.DARKGREEN);
+                                    break;
+                                case PROTECTED:
+                                    this.setTextFill(Color.DARKORANGE);
+                                    break;
+                            }
+                            
+                            this.setUnderline(item.isStatic());
+                            
+                            tooltip.setText((item.isStatic()?"Statique ":"") + item.getVisibility().getName());
+                            this.setTooltip(tooltip);
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+        
         this.title = new SimpleStringProperty("Element");
         this.titlePane.textProperty().bind(this.title);
     }    
@@ -95,5 +133,6 @@ public class TreeNodeController implements Initializable {
         this.classe = classe;
         this.title.setValue(this.classe.getSimpleName());
         this.observablesMethods.addAll(this.classe.getMethods());
+        this.observablesFields.addAll(this.classe.getFields());
     }
 }
