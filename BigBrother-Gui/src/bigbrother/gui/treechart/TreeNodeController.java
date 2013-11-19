@@ -73,7 +73,7 @@ public class TreeNodeController implements Initializable {
                             
                             this.setUnderline(item.isStatic());
                             
-                            tooltip.setText(item.getVisibility().getName());
+                            tooltip.setText((item.isStatic()?"Statique ":"") + item.getVisibility().getName());
                             this.setTooltip(tooltip);
                         }
                     }
