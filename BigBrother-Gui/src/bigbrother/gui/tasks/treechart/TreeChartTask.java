@@ -140,7 +140,6 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
 
     @Override
     protected TreeChartTask.BuildedTreeChart call() throws Exception {
-        try{
         TreePane treePane = new TreePane();
         treePane.setXAxisSpacing(X_SPACING);
         treePane.setYAxisSpacing(Y_SPACING);
@@ -156,11 +155,6 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
         catch (ObservableClassException ex) {
             Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, null, ex);
             return new BuildedTreeChart(treePane, "Arbre partiel : Classe indéfinie trouvée.", Color.DARKORANGE);
-        }
-        }
-        catch(Exception ex){
-            ex.printStackTrace();
-            throw ex;
         }
     }
 }
