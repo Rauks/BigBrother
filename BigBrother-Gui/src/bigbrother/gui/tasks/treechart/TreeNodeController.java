@@ -137,9 +137,17 @@ public class TreeNodeController implements Initializable {
         this.title.setValue(this.classe.getSimpleName().isEmpty()?this.classe.getName():this.classe.getSimpleName());
         try {
             this.observablesMethods.addAll(this.classe.getMethods());
+        } catch (ObservableClassException ex) {
+            Logger.getLogger(TreeNodeController.class.getName()).log(Level.INFO, null, ex);
+            this.observablesMethods.clear();
+            this.methodsList.setDisable(true);
+        }
+        try {
             this.observablesFields.addAll(this.classe.getFields());
         } catch (ObservableClassException ex) {
-            Logger.getLogger(TreeNodeController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TreeNodeController.class.getName()).log(Level.INFO, null, ex);
+            this.observablesFields.clear();
+            this.fieldsList.setDisable(true);
         }
     }
 }
