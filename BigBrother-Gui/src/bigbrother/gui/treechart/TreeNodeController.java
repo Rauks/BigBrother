@@ -18,8 +18,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TitledPane;
+import javafx.scene.paint.Color;
+import javafx.util.Callback;
 
 /**
  * FXML Controller class
@@ -44,11 +48,43 @@ public class TreeNodeController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         this.observablesMethods = FXCollections.observableArrayList();
         this.methodsList.setItems(this.observablesMethods);
+        this.methodsList.setCellFactory(new Callback<ListView<ObservableMethod>, ListCell<ObservableMethod>>(){
+            @Override
+            public ListCell<ObservableMethod> call(ListView<ObservableMethod> p) {
+                final ListCell<ObservableMethod> cell = new ListCell<ObservableMethod>() {
+                    @Override
+                    public void updateItem(ObservableMethod item, boolean empty){
+                        super.updateItem(item, empty);
+                        if(!empty){
+                            this.setText(item.getName() + " : " + item.getReturnType().getSimpleName());
+                            switch(item.getVisibility()){
+                                case PRIVATE:
+                                    this.setTextFill(Color.DARKRED);
+                                    break;
+                                case PUBLIC:
+                                    this.setTextFill(Color.DARKGREEN);
+                                    break;
+                                case PROTECTED:
+                                    this.setTextFill(Color.DARKORANGE);
+                                    break;
+                            }
+                            this.setUnderline(item.isStatic());
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
         
         this.title = new SimpleStringProperty("Element");
         this.titlePane.textProperty().bind(this.title);
     }    
     
+    /**
+     * Set the class which the informations are used in the node.
+     * 
+     * @param classe The class observed.
+     */
     public void setObservation(ObservableClass classe){
         this.classe = classe;
         this.title.setValue(this.classe.getSimpleName());
