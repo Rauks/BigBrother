@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package bigbrother.gui.treechart;
+package bigbrother.gui.tasks.treechart;
 
 import bigbrother.core.model.ObservableClass;
 import bigbrother.core.model.ObservableClassException;

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package bigbrother.gui.tasks;
+package bigbrother.gui.tasks.scanner;
 
 import bigbrother.core.Scanner;
 import javafx.concurrent.Task;
