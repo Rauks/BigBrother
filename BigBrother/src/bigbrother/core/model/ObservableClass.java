@@ -65,7 +65,7 @@ public class ObservableClass {
             return Type.INTERFACE;
         }
         if(this.classe.isEnum()){
-            return Type.INTERFACE;
+            return Type.ENUMERATION;
         }
         if(this.classe.isAnonymousClass()){
             return Type.CLASS_ANONYMOUS;
