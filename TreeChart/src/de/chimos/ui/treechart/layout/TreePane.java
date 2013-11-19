@@ -39,11 +39,10 @@ import javafx.beans.property.SimpleDoubleProperty;
  * @author Niklas Hofmann, Gerrit Linnemann
  */
 public class TreePane extends Region {
-
-    public Double yAxisSpacing = 30.0;
-    public Double xAxisSpacing = 15.0;
-    public Double lineSpacing = 1.5;
-    public Boolean showLines = Boolean.TRUE;
+    private static final Double Y_AXIS_SPACING = 30.0;
+    private static final Double X_AXIS_SPACING = 15.0;
+    private static final Double LINE_SPACING = 1.5;
+    private static final Boolean SHOW_LINES = Boolean.TRUE;
 
     private SimpleDoubleProperty _yAxisSpacingField;
     private SimpleDoubleProperty _xAxisSpacingField;
@@ -52,28 +51,28 @@ public class TreePane extends Region {
 
     public DoubleProperty yAxisSpacingProperty() {
         if (this._yAxisSpacingField == null) {
-            this._yAxisSpacingField = new SimpleDoubleProperty(this, "yAxisSpacing");
+            this._yAxisSpacingField = new SimpleDoubleProperty(Y_AXIS_SPACING);
         }
         return (DoubleProperty) this._yAxisSpacingField;
     }
 
     public DoubleProperty xAxisSpacingProperty() {
         if (this._xAxisSpacingField == null) {
-            this._xAxisSpacingField = new SimpleDoubleProperty(this, "xAxisSpacing");
+            this._xAxisSpacingField = new SimpleDoubleProperty(X_AXIS_SPACING);
         }
         return (DoubleProperty) this._xAxisSpacingField;
     }
 
     public DoubleProperty lineSpacingProperty() {
         if (this._lineSpacingField == null) {
-            this._lineSpacingField = new SimpleDoubleProperty(this, "lineSpacing");
+            this._lineSpacingField = new SimpleDoubleProperty(LINE_SPACING);
         }
         return (DoubleProperty) this._lineSpacingField;
     }
 
     public BooleanProperty showLinesProperty() {
         if (this._showLinesField == null) {
-            this._showLinesField = new SimpleBooleanProperty(this, "showLines");
+            this._showLinesField = new SimpleBooleanProperty(SHOW_LINES);
         }
         return (BooleanProperty) this._showLinesField;
     }
@@ -91,6 +90,38 @@ public class TreePane extends Region {
             layoutChildren();
         }
     };
+  
+    public Double getYAxisSpacing() {
+        return yAxisSpacingProperty().getValue();
+    }
+  
+    public Double getXAxisSpacing() {
+        return xAxisSpacingProperty().getValue();
+    }
+  
+    public Double getLineSpacing() {
+        return lineSpacingProperty().getValue();
+    }
+  
+    public Boolean getShowLines() {
+        return showLinesProperty().getValue();
+    }
+    
+    public void setYAxisSpacing(Double value) {
+        this.yAxisSpacingProperty().setValue(value);
+    }
+    
+    public void setXAxisSpacing(Double value) {
+        this.xAxisSpacingProperty().setValue(value);
+    }
+    
+    public void setLineSpacing(Double value) {
+        this.lineSpacingProperty().setValue(value);
+    }
+    
+    public void setShowLines(Boolean value) {
+        this.showLinesProperty().setValue(value);
+    }
 
     public TreePane() {
         super();
@@ -148,8 +179,8 @@ public class TreePane extends Region {
                     Bounds nodeBounds = node.getLayoutBounds();
 
                     // Get bounds
-                    widthByPosition.put(nodePosition, nodeBounds.getWidth() + this.xAxisSpacing);
-                    levelHeight.put(curLevel, Math.max(levelHeight.get(curLevel), nodeBounds.getHeight() + this.yAxisSpacing));
+                    widthByPosition.put(nodePosition, nodeBounds.getWidth() + this.getXAxisSpacing());
+                    levelHeight.put(curLevel, Math.max(levelHeight.get(curLevel), nodeBounds.getHeight() + this.getYAxisSpacing()));
 
                     // Register positions
                     positionsByLevel.get(curLevel).add(nodePosition);
@@ -270,7 +301,7 @@ public class TreePane extends Region {
         }
 
         // Update lines
-        if (this.showLines == true) {
+        if (this.getShowLines() == true) {
             adjustLineCount(boxesByPosition.size() - 1);
 
             int currentLine = 0;
@@ -288,14 +319,14 @@ public class TreePane extends Region {
                             xCenterHintByPosition.get(position),
                             yCenterHintByPosition.get(position)
                             + (fromBounds != null ? (fromBounds.getHeight() / 2) : 0)
-                            + this.lineSpacing
+                            + this.getLineSpacing()
                     );
 
                     Point2D lineTo = new Point2D(
                             xCenterHintByPosition.get(childPosition),
                             yCenterHintByPosition.get(childPosition)
                             - (toBounds != null ? (toBounds.getHeight() / 2) : 0)
-                            - this.lineSpacing
+                            - this.getLineSpacing()
                     );
 
                     Line l = _lines.get(currentLine);
