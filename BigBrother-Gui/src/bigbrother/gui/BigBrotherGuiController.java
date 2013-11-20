@@ -10,6 +10,7 @@ import bigbrother.core.Scanner;
 import bigbrother.core.model.ObservableClass;
 import bigbrother.core.model.ObservableClassException;
 import bigbrother.core.model.ObservableField;
+import bigbrother.gui.tasks.accordion.PackagesPanesBuildingTask;
 import bigbrother.gui.tasks.scanner.ScannerTask;
 import bigbrother.gui.tasks.treechart.TreeChartTask;
 import bigbrother.gui.tasks.treechart.TreeNodeController;
@@ -122,53 +123,35 @@ public class BigBrotherGuiController implements Initializable {
         scannerBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
-            Scanner scanner = (Scanner) t.getSource().getValue();
-            
-            HashMap<String, List<ObservableClass>> groupedClasses = new HashMap<>();
-            
-            for(ObservableClass classe : scanner.getClasses()){
-                String packageName = classe.getPackageName();
-                if(!groupedClasses.containsKey(packageName)){
-                    groupedClasses.put(packageName, new ArrayList<ObservableClass>());
-                }
-                groupedClasses.get(packageName).add(classe);
-            }
-            
-            List<Entry<String, List<ObservableClass>>> sortedGroupedClasses = new ArrayList<>(groupedClasses.entrySet());
-            Collections.sort(sortedGroupedClasses, new Comparator<Entry<String, List<ObservableClass>>>(){
-                @Override
-                public int compare(Entry<String, List<ObservableClass>> t, Entry<String, List<ObservableClass>> t1) {
-                    return t.getKey().compareTo(t1.getKey());
-                }
-            });
-            for(Entry<String, List<ObservableClass>> entry : sortedGroupedClasses){
-                try {
-                    List<ObservableClass> classes = entry.getValue();
-                    
-                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PackageView.fxml"));
-                    TitledPane p = (TitledPane) fxmlLoader.load();
-                    PackageViewController pController = fxmlLoader.<PackageViewController>getController();
-                    pController.setParentController(BigBrotherGuiController.this);
-                    pController.setTitle(entry.getKey());
-                    
-                    for(ObservableClass classe : classes){
-                        pController.addObservableClass(classe);
-                    }
-                    
-                    BigBrotherGuiController.this.classesList.getPanes().add(p);
-                } catch (IOException ex) {
-                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            BigBrotherGuiController.this.classesList.autosize();
+                Scanner scanner = (Scanner) t.getSource().getValue();
 
-            if(scanner.encouredError()){
-                BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKORANGE);
-                BigBrotherGuiController.this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
-            }
-            
-            BigBrotherGuiController.this.progressBar.setProgress(1d);
-            BigBrotherGuiController.this.loading.set(false);
+                if(scanner.encouredError()){
+                    BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKORANGE);
+                    BigBrotherGuiController.this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
+                }
+
+                PackagesPanesBuildingTask accordionBuilder = new PackagesPanesBuildingTask(BigBrotherGuiController.this, BigBrotherGuiController.this.classesList, scanner.getClasses());
+                accordionBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent t) {
+                        List<TitledPane> panes = (List<TitledPane>) t.getSource().getValue();
+                        BigBrotherGuiController.this.classesList.getPanes().addAll(panes);
+                
+                        BigBrotherGuiController.this.progressBar.setProgress(1d);
+                        BigBrotherGuiController.this.loading.set(false);
+                    }
+                });
+                accordionBuilder.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent t) {
+                        BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKORANGE);
+                        BigBrotherGuiController.this.bottomMessage.setText("Erreur de construction de la liste des packages.");
+
+                        BigBrotherGuiController.this.progressBar.setProgress(1d);
+                        BigBrotherGuiController.this.loading.set(false);
+                    }
+                });
+                new Thread(accordionBuilder).start();
             }
         });
         scannerBuilder.setOnFailed(new EventHandler<WorkerStateEvent>(){
@@ -266,7 +249,7 @@ public class BigBrotherGuiController implements Initializable {
         scrollContent.setScaleY(scale);
     }
     
-    void loadTreeChart(ObservableClass classe){
+    public void loadTreeChart(ObservableClass classe){
         this.loading.set(true);
         this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         

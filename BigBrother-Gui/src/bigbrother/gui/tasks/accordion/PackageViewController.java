@@ -4,9 +4,10 @@
  * and open the template in the editor.
  */
 
-package bigbrother.gui;
+package bigbrother.gui.tasks.accordion;
 
 import bigbrother.core.model.ObservableClass;
+import bigbrother.gui.BigBrotherGuiController;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.property.SimpleStringProperty;
