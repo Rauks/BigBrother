@@ -175,7 +175,8 @@ public class BigBrotherGuiController implements Initializable {
             }
         });
         this.classesList.setCellFactory(new Callback<TreeView<TreeNode>, TreeCell<TreeNode>>(){
-            private Image nodeImage = new Image(BigBrotherGuiController.class.getResourceAsStream("folder.png"));
+            private Image packageImage = new Image(BigBrotherGuiController.class.getResourceAsStream("folder.png"));
+            private Image classImage = new Image(BigBrotherGuiController.class.getResourceAsStream("file.png"));
             
             @Override
             public TreeCell<TreeNode> call(TreeView<TreeNode> p) {
@@ -186,12 +187,18 @@ public class BigBrotherGuiController implements Initializable {
                         super.updateItem(item, empty);
 
                         if (!empty) {
+                            ImageView iv = new ImageView();
+                            iv.setFitHeight(16);
+                            iv.setFitWidth(16);
+                            iv.setPreserveRatio(true);
+                                
                             if(item.isPackage()){
                                 this.setText(item.getPackageName());
-                                this.setGraphic(new ImageView(nodeImage));
+                                iv.setImage(packageImage);
                             }
                             else{
                                 this.setText(item.getObservableClass().getSimpleName());
+                                iv.setImage(classImage);
 
                                 switch(item.getObservableClass().getType()){
                                     case ANNOTATION:
@@ -216,7 +223,7 @@ public class BigBrotherGuiController implements Initializable {
                                 this.setTooltip(tooltip);
                                 this.setCursor(Cursor.HAND);
                             }
-                            
+                            this.setGraphic(iv);
                         }
                     }
                 }; // ListCell
