@@ -75,7 +75,7 @@ public class TreeViewTask extends Task<TreeItem<TreeNode>>{
                 @Override
                 public int compare(ObservableClass o1, ObservableClass o2) {
                     if(o1.getPackageName().equals(o2.getPackageName())){
-                        return o1.getName().compareTo(o2.getName());
+                        return o1.getSimpleName().compareTo(o2.getSimpleName());
                     }
                     else{
                         if(o1.getPackageName().startsWith(o2.getPackageName())){
