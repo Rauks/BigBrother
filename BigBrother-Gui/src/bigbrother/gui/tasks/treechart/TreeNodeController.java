@@ -11,6 +11,9 @@ import bigbrother.core.model.ObservableClassException;
 import bigbrother.core.model.ObservableField;
 import bigbrother.core.model.ObservableMethod;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -139,6 +142,18 @@ public class TreeNodeController implements Initializable {
         this.title.setValue(this.classe.getSimpleName().isEmpty()?this.classe.getName():this.classe.getSimpleName());
         try {
             this.observablesMethods.addAll(this.classe.getMethods());
+            Collections.sort(this.observablesMethods, new Comparator<ObservableMethod>(){
+                @Override
+                public int compare(ObservableMethod t, ObservableMethod t1) {
+                    if(t.isStatic() && !t1.isStatic()){
+                        return -1;
+                    }
+                    if(!t.isStatic() && t1.isStatic()){
+                        return 1;
+                    }
+                    return t.getName().compareTo(t1.getName());
+                }
+            });
         } catch (ObservableClassException ex) {
             Logger.getLogger(TreeNodeController.class.getName()).log(Level.INFO, null, ex);
             this.observablesMethods.clear();
@@ -146,6 +161,18 @@ public class TreeNodeController implements Initializable {
         }
         try {
             this.observablesFields.addAll(this.classe.getFields());
+            Collections.sort(this.observablesFields, new Comparator<ObservableField>(){
+                @Override
+                public int compare(ObservableField t, ObservableField t1) {
+                    if(t.isStatic() && !t1.isStatic()){
+                        return -1;
+                    }
+                    if(!t.isStatic() && t1.isStatic()){
+                        return 1;
+                    }
+                    return t.getName().compareTo(t1.getName());
+                }
+            });
         } catch (ObservableClassException ex) {
             Logger.getLogger(TreeNodeController.class.getName()).log(Level.INFO, null, ex);
             this.observablesFields.clear();
