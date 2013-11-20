@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package bigbrother.gui.tasks.accordion;
+package bigbrother.gui.tasks.treeview;
 
 import bigbrother.core.model.ObservableClass;
 import bigbrother.gui.BigBrotherGuiController;
@@ -19,54 +19,17 @@ import javafx.scene.control.TreeItem;
  *
  * @author Karl
  */
-public class PackagesPanesBuildingTask extends Task<TreeItem<PackagesPanesBuildingTask.TreeNode>>{
+public class TreeViewTask extends Task<TreeItem<TreeNode>>{
     private final List<ObservableClass> classes;
     private final BigBrotherGuiController caller;
     private final TreeItem<TreeNode> root;
     
     private HashMap<String, TreeItem<TreeNode>> nodesDictionary = new HashMap<>();
     
-    public PackagesPanesBuildingTask(BigBrotherGuiController caller, List<ObservableClass> classes, String rootName) {
+    public TreeViewTask(BigBrotherGuiController caller, List<ObservableClass> classes, String rootName) {
         this.classes = classes;
         this.caller = caller;
         this.root = new TreeItem<>(new TreeNode(rootName));
-    }
-    
-    public class TreeNode{
-        private final boolean isPackage;
-        private final String packageName;
-        private final ObservableClass observableClass;
-
-        /**
-         *
-         * @param packageName
-         */
-        public TreeNode(String packageName) {
-            this.packageName = packageName;
-            this.isPackage = true;
-            this.observableClass = null;
-        }
-            
-        public TreeNode(ObservableClass observableClass) {
-            this.observableClass = observableClass;
-            this.isPackage = false;
-            this.packageName = observableClass.getPackageName();
-        }
-
-        public boolean isPackage() {
-            return this.isPackage;
-        }
-        public boolean isClass() {
-            return !this.isPackage;
-        }
-
-        public String getPackageName() {
-            return this.packageName;
-        }
-
-        public ObservableClass getObservableClass() {
-            return this.observableClass;
-        }
     }
     
     private void addItemToTree(ObservableClass observable){

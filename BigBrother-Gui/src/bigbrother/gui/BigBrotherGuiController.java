@@ -9,61 +9,26 @@ package bigbrother.gui;
 import bigbrother.core.Scanner;
 import bigbrother.core.model.ObservableClass;
 import bigbrother.core.model.ObservableClassException;
-import bigbrother.core.model.ObservableField;
-import bigbrother.gui.tasks.accordion.PackagesPanesBuildingTask;
-import bigbrother.gui.tasks.accordion.PackagesPanesBuildingTask.TreeNode;
+import bigbrother.gui.tasks.treeview.TreeViewTask;
+import bigbrother.gui.tasks.treeview.TreeNode;
 import bigbrother.gui.tasks.scanner.ScannerTask;
 import bigbrother.gui.tasks.treechart.TreeChartTask;
-import bigbrother.gui.tasks.treechart.TreeNodeController;
-import de.chimos.ui.treechart.layout.NodePosition;
-import de.chimos.ui.treechart.layout.TreePane;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.RotateTransition;
-import javafx.animation.RotateTransitionBuilder;
-import javafx.animation.TimelineBuilder;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -73,11 +38,9 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
-import javafx.util.Duration;
 
 /**
  * FXML Controller class
@@ -137,7 +100,7 @@ public class BigBrotherGuiController implements Initializable {
                     BigBrotherGuiController.this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
                 }
 
-                PackagesPanesBuildingTask accordionBuilder = new PackagesPanesBuildingTask(BigBrotherGuiController.this, scanner.getClasses(), scanner.getJarName());
+                TreeViewTask accordionBuilder = new TreeViewTask(BigBrotherGuiController.this, scanner.getClasses(), scanner.getJarName());
                 accordionBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent t) {
