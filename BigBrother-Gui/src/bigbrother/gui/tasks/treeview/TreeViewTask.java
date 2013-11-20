@@ -8,6 +8,8 @@ package bigbrother.gui.tasks.treeview;
 
 import bigbrother.core.model.ObservableClass;
 import bigbrother.gui.BigBrotherGuiController;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -69,7 +71,27 @@ public class TreeViewTask extends Task<TreeItem<TreeNode>>{
     @Override
     protected TreeItem<TreeNode> call() throws Exception {
         try{
+            Collections.sort(this.classes, new Comparator<ObservableClass>(){
+                @Override
+                public int compare(ObservableClass o1, ObservableClass o2) {
+                    if(o1.getPackageName().equals(o2.getPackageName())){
+                        return o1.getName().compareTo(o2.getName());
+                    }
+                    else{
+                        if(o1.getPackageName().startsWith(o2.getPackageName())){
+                            return -1;
+                        }
+                        else if (o2.getPackageName().startsWith(o1.getPackageName())){
+                            return 1;
+                        }
+                        else{
+                            return o1.getPackageName().compareTo(o2.getPackageName());
+                        }
+                    }
+                }
+            });
             for(ObservableClass classe : this.classes){
+                System.out.println(classe.getName());
                 this.addItemToTree(classe);
             }
             this.updateProgress(1, 1);
@@ -77,6 +99,7 @@ public class TreeViewTask extends Task<TreeItem<TreeNode>>{
         catch(Exception e){
             e.printStackTrace();
         }
+
         return this.root;
     }
 }
