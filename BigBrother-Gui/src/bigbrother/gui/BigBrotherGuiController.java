@@ -21,11 +21,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
@@ -120,17 +123,24 @@ public class BigBrotherGuiController implements Initializable {
             public void handle(WorkerStateEvent t) {
             Scanner scanner = (Scanner) t.getSource().getValue();
             
-            HashMap<String, List<ObservableClass>> sortedClasses = new HashMap<>();
+            HashMap<String, List<ObservableClass>> groupedClasses = new HashMap<>();
             
             for(ObservableClass classe : scanner.getClasses()){
                 String packageName = classe.getPackageName();
-                if(!sortedClasses.containsKey(packageName)){
-                    sortedClasses.put(packageName, new ArrayList<ObservableClass>());
+                if(!groupedClasses.containsKey(packageName)){
+                    groupedClasses.put(packageName, new ArrayList<ObservableClass>());
                 }
-                sortedClasses.get(packageName).add(classe);
+                groupedClasses.get(packageName).add(classe);
             }
             
-            for(Entry<String, List<ObservableClass>> entry : sortedClasses.entrySet()){
+            List<Entry<String, List<ObservableClass>>> sortedGroupedClasses = new ArrayList<>(groupedClasses.entrySet());
+            Collections.sort(sortedGroupedClasses, new Comparator<Entry<String, List<ObservableClass>>>(){
+                @Override
+                public int compare(Entry<String, List<ObservableClass>> t, Entry<String, List<ObservableClass>> t1) {
+                    return t.getKey().compareTo(t1.getKey());
+                }
+            });
+            for(Entry<String, List<ObservableClass>> entry : sortedGroupedClasses){
                 try {
                     List<ObservableClass> classes = entry.getValue();
                     
