@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Karl
  */
-public class ObservableMethod {
+public class ObservableMethod{
     private final Method method;
     
     ObservableMethod(Method method) {

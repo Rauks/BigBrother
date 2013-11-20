@@ -8,84 +8,108 @@ package bigbrother.gui.tasks.accordion;
 
 import bigbrother.core.model.ObservableClass;
 import bigbrother.gui.BigBrotherGuiController;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Objects;
+import java.util.StringTokenizer;
 import javafx.concurrent.Task;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.TreeItem;
 
 /**
  *
  * @author Karl
  */
-public class PackagesPanesBuildingTask extends Task<List<TitledPane>>{
-    private final Accordion loadInto;
+public class PackagesPanesBuildingTask extends Task<TreeItem<PackagesPanesBuildingTask.TreeNode>>{
     private final List<ObservableClass> classes;
     private final BigBrotherGuiController caller;
-    private final List<TitledPane> buildedPanes = new ArrayList();
+    private final TreeItem<TreeNode> root;
     
-    public PackagesPanesBuildingTask(BigBrotherGuiController caller, Accordion loadInto, List<ObservableClass> classes) {
-        this.loadInto = loadInto;
+    private HashMap<String, TreeItem<TreeNode>> nodesDictionary = new HashMap<>();
+    
+    public PackagesPanesBuildingTask(BigBrotherGuiController caller, List<ObservableClass> classes, String rootName) {
         this.classes = classes;
         this.caller = caller;
+        this.root = new TreeItem<>(new TreeNode(rootName));
+    }
+    
+    public class TreeNode{
+        private final boolean isPackage;
+        private final String packageName;
+        private final ObservableClass observableClass;
+
+        /**
+         *
+         * @param packageName
+         */
+        public TreeNode(String packageName) {
+            this.packageName = packageName;
+            this.isPackage = true;
+            this.observableClass = null;
+        }
+            
+        public TreeNode(ObservableClass observableClass) {
+            this.observableClass = observableClass;
+            this.isPackage = false;
+            this.packageName = observableClass.getPackageName();
+        }
+
+        public boolean isPackage() {
+            return this.isPackage;
+        }
+        public boolean isClass() {
+            return !this.isPackage;
+        }
+
+        public String getPackageName() {
+            return this.packageName;
+        }
+
+        public ObservableClass getObservableClass() {
+            return this.observableClass;
+        }
+    }
+    
+    private void addItemToTree(ObservableClass observable){
+        StringBuilder packageNameStep = new StringBuilder();
+        StringTokenizer st = new StringTokenizer(observable.getPackageName(), ".");
+        
+        while(st.hasMoreTokens()){
+            String previousPackage = packageNameStep.toString();
+            packageNameStep.append(st.nextToken());
+            String currentPackage = packageNameStep.toString();
+            if(!this.nodesDictionary.containsKey(currentPackage)){
+                TreeItem<TreeNode> node = new TreeItem<>(new TreeNode(currentPackage));
+                if(previousPackage.isEmpty()){
+                    this.root.getChildren().add(node);
+                }
+                else{
+                    this.nodesDictionary.get(previousPackage).getChildren().add(node);
+                }
+                this.nodesDictionary.put(currentPackage, node);
+            }
+        }
+        
+        String targetPackage = packageNameStep.toString();
+        TreeItem<TreeNode> node = new TreeItem<>(new TreeNode(observable));
+        if(targetPackage.isEmpty()){
+            this.root.getChildren().add(node);
+        }
+        else{
+            this.nodesDictionary.get(targetPackage).getChildren().add(node);
+        }
     }
 
     @Override
-    protected List<TitledPane> call() throws Exception {
-        HashMap<String, List<ObservableClass>> groupedClasses = new HashMap<>();
-        int totalProgress = 2 * this.classes.size();
-        int progress = 0;
-        
-        this.updateProgress(progress, totalProgress);
-        
-        for(ObservableClass classe : this.classes){
-            String packageName = classe.getPackageName();
-            if(!groupedClasses.containsKey(packageName)){
-                groupedClasses.put(packageName, new ArrayList<ObservableClass>());
+    protected TreeItem<TreeNode> call() throws Exception {
+        try{
+            for(ObservableClass classe : this.classes){
+                this.addItemToTree(classe);
             }
-            groupedClasses.get(packageName).add(classe);
-            
-            progress++;
-            this.updateProgress(progress, totalProgress);
+            this.updateProgress(1, 1);
         }
-
-        List<Map.Entry<String, List<ObservableClass>>> sortedGroupedClasses = new ArrayList<>(groupedClasses.entrySet());
-        Collections.sort(sortedGroupedClasses, new Comparator<Map.Entry<String, List<ObservableClass>>>(){
-            @Override
-            public int compare(Map.Entry<String, List<ObservableClass>> t, Map.Entry<String, List<ObservableClass>> t1) {
-                return t.getKey().compareTo(t1.getKey());
-            }
-        });
-        for(Map.Entry<String, List<ObservableClass>> entry : sortedGroupedClasses){
-            try {
-                List<ObservableClass> classes = entry.getValue();
-
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PackageView.fxml"));
-                TitledPane p = (TitledPane) fxmlLoader.load();
-                PackageViewController pController = fxmlLoader.<PackageViewController>getController();
-                pController.setParentController(this.caller);
-                pController.setTitle(entry.getKey());
-
-                for(ObservableClass classe : classes){
-                    pController.addObservableClass(classe);
-                }
-
-                this.buildedPanes.add(p);
-            } catch (IOException ex) {
-                Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            progress++;
-            this.updateProgress(progress, totalProgress);
+        catch(Exception e){
+            e.printStackTrace();
         }
-        return this.buildedPanes;
+        return this.root;
     }
 }

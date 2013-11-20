@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Karl
  */
-public class ObservableField {
+public class ObservableField{
     private final Field field;
 
     ObservableField(Field field) {

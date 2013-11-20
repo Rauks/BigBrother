@@ -57,11 +57,11 @@
         </Accordion>
       </center>
       <left>
-        <Accordion fx:id="classesList" expandedPane="$null" prefWidth="220.0">
+        <TreeView fx:id="classesList" prefHeight="-1.0" prefWidth="220.0">
           <BorderPane.margin>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+            <Insets bottom="2.0" left="2.0" top="2.0" />
           </BorderPane.margin>
-        </Accordion>
+        </TreeView>
       </left>
       <top>
         <MenuBar>

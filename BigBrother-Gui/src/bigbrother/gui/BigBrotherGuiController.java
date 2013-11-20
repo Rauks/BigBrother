@@ -11,6 +11,7 @@ import bigbrother.core.model.ObservableClass;
 import bigbrother.core.model.ObservableClassException;
 import bigbrother.core.model.ObservableField;
 import bigbrother.gui.tasks.accordion.PackagesPanesBuildingTask;
+import bigbrother.gui.tasks.accordion.PackagesPanesBuildingTask.TreeNode;
 import bigbrother.gui.tasks.scanner.ScannerTask;
 import bigbrother.gui.tasks.treechart.TreeChartTask;
 import bigbrother.gui.tasks.treechart.TreeNodeController;
@@ -61,8 +62,10 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
@@ -89,7 +92,7 @@ public class BigBrotherGuiController implements Initializable {
     @FXML
     public Pane rootPane;
     @FXML
-    public Accordion classesList;
+    public TreeView classesList;
     @FXML
     public ScrollPane scrollPane;
     @FXML
@@ -119,7 +122,7 @@ public class BigBrotherGuiController implements Initializable {
      */
     public void doScan(String jarFilePath){
         this.loading.set(true);
-        this.classesList.getPanes().clear();
+        //this.classesList.getPanes().clear();
         this.unloadTreeChart();
         
         ScannerTask scannerBuilder = new ScannerTask(jarFilePath);
@@ -134,12 +137,12 @@ public class BigBrotherGuiController implements Initializable {
                     BigBrotherGuiController.this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
                 }
 
-                PackagesPanesBuildingTask accordionBuilder = new PackagesPanesBuildingTask(BigBrotherGuiController.this, BigBrotherGuiController.this.classesList, scanner.getClasses());
+                PackagesPanesBuildingTask accordionBuilder = new PackagesPanesBuildingTask(BigBrotherGuiController.this, scanner.getClasses(), scanner.getJarName());
                 accordionBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent t) {
-                        List<TitledPane> panes = (List<TitledPane>) t.getSource().getValue();
-                        BigBrotherGuiController.this.classesList.getPanes().addAll(panes);
+                        TreeItem<TreeNode> root = (TreeItem<TreeNode>) t.getSource().getValue();
+                        BigBrotherGuiController.this.classesList.setRoot(root);
                 
                         BigBrotherGuiController.this.loading.set(false);
                     }
@@ -192,8 +195,67 @@ public class BigBrotherGuiController implements Initializable {
         this.loading = new SimpleBooleanProperty(false);
         
         this.classesList.disableProperty().bind(this.loading);
+        this.classesList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<TreeNode>>() {
+            @Override
+            public void changed(ObservableValue<? extends TreeItem<TreeNode>> observable, TreeItem<TreeNode> oldValue, TreeItem<TreeNode> newValue) {
+                if(newValue != null){
+                    if(newValue.getValue().isClass()){
+                        BigBrotherGuiController.this.loadTreeChart(newValue.getValue().getObservableClass());
+                    }
+                }
+                else{
+                    BigBrotherGuiController.this.unloadTreeChart();
+                }
+            }
+        });
+        this.classesList.setCellFactory(new Callback<TreeView<TreeNode>, TreeCell<TreeNode>>(){
+            @Override
+            public TreeCell<TreeNode> call(TreeView<TreeNode> p) {
+                final Tooltip tooltip = new Tooltip();
+                final TreeCell<TreeNode> cell = new TreeCell<TreeNode>() {
+                    @Override
+                    public void updateItem(TreeNode item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (!empty) {
+                            if(item.isPackage()){
+                                this.setText(item.getPackageName());
+                            }
+                            else{
+                                this.setText(item.getObservableClass().getSimpleName());
+
+                                switch(item.getObservableClass().getType()){
+                                    case ANNOTATION:
+                                        this.setTextFill(Color.DARKBLUE);
+                                        break;
+                                    case ENUMERATION:
+                                        this.setTextFill(Color.DARKGREEN);
+                                        break;
+                                    case INTERFACE:
+                                        this.setTextFill(Color.DARKORANGE);
+                                        break;
+                                    case CLASS_ANONYMOUS:
+                                    case CLASS_SYNTHETIC:
+                                        this.setTextFill(Color.GRAY);
+                                        break;
+                                    default:
+                                        this.setTextFill(Color.BLACK);
+                                        break;
+                                }
+
+                                tooltip.setText(item.getObservableClass().getType().getName());
+                                this.setTooltip(tooltip);
+                                this.setCursor(Cursor.HAND);
+                            }
+                            
+                        }
+                    }
+                }; // ListCell
+                return cell;
+            }
+        });
+        
         this.scrollPane.disableProperty().bind(this.loading);
-            
         this.scrollPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent me) {

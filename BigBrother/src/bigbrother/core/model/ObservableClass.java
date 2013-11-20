@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
  *
  * @author Karl
  */
-public class ObservableClass {
+public class ObservableClass{
     public enum Type{
         ANNOTATION("Interface (Annotation)"),
         INTERFACE("Interface"),

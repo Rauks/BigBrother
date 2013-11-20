@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 public class Scanner {
     private List<ObservableClass> loadedClasses = new ArrayList<>();
     private boolean encouredError = false;
+    private String jarName;
     
     /**
      * Load a jar file and load all contained classes.
@@ -33,6 +34,7 @@ public class Scanner {
      */
     public Scanner(String pathToJar) throws IOException{
         JarFile jarFile = new JarFile(pathToJar);
+        this.jarName = jarFile.getName();
         Enumeration entries = jarFile.entries();
 
         URL[] urls = {
@@ -77,5 +79,9 @@ public class Scanner {
      */
     public boolean encouredError(){
         return this.encouredError;
+    }
+
+    public String getJarName() {
+        return this.jarName;
     }
 }
