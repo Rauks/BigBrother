@@ -10,6 +10,7 @@ import bigbrother.core.model.ObservableClass;
 import bigbrother.core.model.ObservableClassException;
 import bigbrother.core.model.ObservableField;
 import bigbrother.core.model.ObservableMethod;
+import bigbrother.gui.BigBrotherGuiController;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,10 +22,12 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
@@ -85,6 +88,7 @@ public class TreeNodeController implements Initializable {
                             
                             tooltip.setText((item.isStatic()?"Statique ":"") + item.getVisibility().getName());
                             this.setTooltip(tooltip);
+                            this.setCursor(Cursor.HAND);
                         }
                     }
                 };
@@ -120,6 +124,7 @@ public class TreeNodeController implements Initializable {
                             
                             tooltip.setText((item.isStatic()?"Statique ":"") + item.getVisibility().getName());
                             this.setTooltip(tooltip);
+                            this.setCursor(Cursor.HAND);
                         }
                     }
                 };
@@ -182,5 +187,20 @@ public class TreeNodeController implements Initializable {
     
     public void setTitlePrefix(String prefix){
         this.titlePre.set(prefix);
+    }
+    
+    public void setParentController(final BigBrotherGuiController controler){
+        this.fieldsList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ObservableField>() {
+            @Override
+            public void changed(ObservableValue observableObject, ObservableField oldValue, ObservableField newValue) {
+                controler.loadTreeChart(newValue.getType());
+            }
+        });
+        this.methodsList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ObservableMethod>() {
+            @Override
+            public void changed(ObservableValue observableObject, ObservableMethod oldValue, ObservableMethod newValue) {
+                controler.loadTreeChart(newValue.getReturnType());
+            }
+        });
     }
 }

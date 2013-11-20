@@ -17,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TitledPane;
@@ -97,6 +98,7 @@ public class PackageViewController implements Initializable {
 
                             tooltip.setText(item.getType().getName());
                             this.setTooltip(tooltip);
+                            this.setCursor(Cursor.HAND);
                         }
                     }
                 }; // ListCell

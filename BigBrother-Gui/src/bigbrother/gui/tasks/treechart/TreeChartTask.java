@@ -58,14 +58,15 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
         }
     }
     
-    
+    private final BigBrotherGuiController caller;
     private final ObservableClass rootClasse;
     
     private static final double X_SPACING = 80d;
     private static final double Y_SPACING = 100d;
     
-    public TreeChartTask(ObservableClass rootClasse){
+    public TreeChartTask(ObservableClass rootClasse, BigBrotherGuiController caller){
         this.rootClasse = rootClasse;
+        this.caller = caller;
     }
     
     /**
@@ -82,6 +83,7 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
             element = (Node) fxmlLoader.load();
             TreeNodeController elementController = fxmlLoader.<TreeNodeController>getController();
             elementController.setObservation(classe);
+            elementController.setParentController(this.caller);
             if(titlePrefix != null){
                 elementController.setTitlePrefix(titlePrefix);
             }

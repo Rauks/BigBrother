@@ -260,7 +260,7 @@ public class BigBrotherGuiController implements Initializable {
         this.bottomMessage.setText("");
         this.unloadTreeChart();
         
-        TreeChartTask treeBuilder = new TreeChartTask(classe);
+        TreeChartTask treeBuilder = new TreeChartTask(classe, this);
         treeBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
