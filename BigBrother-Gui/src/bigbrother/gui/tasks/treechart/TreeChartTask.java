@@ -166,6 +166,8 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
         //Tree root
         treePane.addChild(this.loadTreeNode(this.rootClasse), NodePosition.ROOT);
         
+        this.updateProgress(1, 1);
+        
         //Tree branches
         try {
             this.loadTreeNodeChildren(this.rootClasse, treePane, NodePosition.ROOT, 7, 3);

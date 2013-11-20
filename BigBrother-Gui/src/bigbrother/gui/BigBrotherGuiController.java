@@ -119,11 +119,11 @@ public class BigBrotherGuiController implements Initializable {
      */
     public void doScan(String jarFilePath){
         this.loading.set(true);
-        this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         this.classesList.getPanes().clear();
         this.unloadTreeChart();
         
         ScannerTask scannerBuilder = new ScannerTask(jarFilePath);
+        this.progressBar.progressProperty().bind(scannerBuilder.progressProperty());
         scannerBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
@@ -141,7 +141,6 @@ public class BigBrotherGuiController implements Initializable {
                         List<TitledPane> panes = (List<TitledPane>) t.getSource().getValue();
                         BigBrotherGuiController.this.classesList.getPanes().addAll(panes);
                 
-                        BigBrotherGuiController.this.progressBar.setProgress(1d);
                         BigBrotherGuiController.this.loading.set(false);
                     }
                 });
@@ -255,12 +254,12 @@ public class BigBrotherGuiController implements Initializable {
     
     public void loadTreeChart(final ObservableClass classe){
         this.loading.set(true);
-        this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         
         this.bottomMessage.setText("");
         this.unloadTreeChart();
         
         TreeChartTask treeBuilder = new TreeChartTask(classe, this);
+        this.progressBar.progressProperty().bind(treeBuilder.progressProperty());
         treeBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
@@ -273,7 +272,6 @@ public class BigBrotherGuiController implements Initializable {
                 BigBrotherGuiController.this.cleanAriane();
                 BigBrotherGuiController.this.buildAriane(classe);
 
-                BigBrotherGuiController.this.progressBar.setProgress(1.0d);
                 BigBrotherGuiController.this.loading.set(false);
             }
         });

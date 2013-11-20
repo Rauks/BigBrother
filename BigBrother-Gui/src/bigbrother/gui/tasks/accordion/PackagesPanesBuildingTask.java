@@ -41,13 +41,20 @@ public class PackagesPanesBuildingTask extends Task<List<TitledPane>>{
     @Override
     protected List<TitledPane> call() throws Exception {
         HashMap<String, List<ObservableClass>> groupedClasses = new HashMap<>();
-            
+        int totalProgress = 2 * this.classes.size();
+        int progress = 0;
+        
+        this.updateProgress(progress, totalProgress);
+        
         for(ObservableClass classe : this.classes){
             String packageName = classe.getPackageName();
             if(!groupedClasses.containsKey(packageName)){
                 groupedClasses.put(packageName, new ArrayList<ObservableClass>());
             }
             groupedClasses.get(packageName).add(classe);
+            
+            progress++;
+            this.updateProgress(progress, totalProgress);
         }
 
         List<Map.Entry<String, List<ObservableClass>>> sortedGroupedClasses = new ArrayList<>(groupedClasses.entrySet());
@@ -75,6 +82,9 @@ public class PackagesPanesBuildingTask extends Task<List<TitledPane>>{
             } catch (IOException ex) {
                 Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.SEVERE, null, ex);
             }
+            
+            progress++;
+            this.updateProgress(progress, totalProgress);
         }
         return this.buildedPanes;
     }

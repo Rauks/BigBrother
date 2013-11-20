@@ -22,6 +22,8 @@ public class ScannerTask extends Task<Scanner>{
     
     @Override
     protected Scanner call() throws Exception {
-        return new Scanner(pathToJar);
+        Scanner scanner = new Scanner(pathToJar);
+        this.updateProgress(1, 1);
+        return scanner;
     }
 }
