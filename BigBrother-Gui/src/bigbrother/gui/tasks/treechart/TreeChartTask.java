@@ -104,7 +104,8 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
     }
     
     /**
-     * Build the children of a {@link TreeNode} using {@link ObservableClasse} fields informations.
+     * Build the children of a {@link TreeNode} using {@link ObservableClasse} fields informations. 
+     * Only the non static fields are followed.
      * 
      * @param classe The class which fields are used to build the children nodes.
      * @param treePane The tree where the children are added.
@@ -121,19 +122,21 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
         else{
             int childIndex = 0;
             for (ObservableField field : fields) {
-                NodePosition position = parentPosition.getChild(childIndex);
-                if(childIndex >= maxChildren){
-                    final Node node = this.loadEllipsisTreeNode();
-                    treePane.addChild(node, position);
-                    return;
+                if(!field.isStatic()){
+                    NodePosition position = parentPosition.getChild(childIndex);
+                    if(childIndex >= maxChildren){
+                        final Node node = this.loadEllipsisTreeNode();
+                        treePane.addChild(node, position);
+                        return;
+                    }
+                    else{
+                        ObservableClass fieldType = field.getType();
+                        final Node node = this.loadTreeNode(fieldType);
+                        treePane.addChild(node, position);
+                        this.loadTreeNodeChildren(fieldType, treePane, position, maxChildren, maxLevel);
+                    }
+                    childIndex++;
                 }
-                else{
-                    ObservableClass fieldType = field.getType();
-                    final Node node = this.loadTreeNode(fieldType);
-                    treePane.addChild(node, position);
-                    this.loadTreeNodeChildren(fieldType, treePane, position, maxChildren, maxLevel);
-                }
-                childIndex++;
             }
         }
     }
