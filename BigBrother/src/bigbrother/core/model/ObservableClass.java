@@ -55,7 +55,7 @@ public class ObservableClass {
     }
     
     public String getSimpleName(){
-        return this.classe.getSimpleName();
+        return (this.classe.getSimpleName().isEmpty())?this.getName().replaceAll(".*\\.", ""):this.classe.getSimpleName();
     }
     
     public Type getType(){

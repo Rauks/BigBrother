@@ -144,7 +144,7 @@ public class TreeNodeController implements Initializable {
      */
     public void setObservation(ObservableClass classe){
         this.classe = classe;
-        this.title.setValue(this.classe.getSimpleName().isEmpty()?this.classe.getName():this.classe.getSimpleName());
+        this.title.setValue(this.classe.getSimpleName());
         try {
             this.observablesMethods.addAll(this.classe.getMethods());
             Collections.sort(this.observablesMethods, new Comparator<ObservableMethod>(){
