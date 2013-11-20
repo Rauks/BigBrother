@@ -35,7 +35,7 @@
       <center>
         <Accordion>
           <expandedPane>
-            <TitledPane fx:id="x1" animated="false" collapsible="false" text="">
+            <TitledPane fx:id="x1" animated="false" collapsible="false" contentDisplay="RIGHT" graphicTextGap="4.0" text="Chaîne d'héritage :" textFill="#606060">
               <content>
                 <ScrollPane fx:id="scrollPane" disable="false" fitToHeight="true" fitToWidth="true">
                   <content>
@@ -44,7 +44,7 @@
                 </ScrollPane>
               </content>
               <graphic>
-                <HBox fx:id="arianeBox" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" />
+                <HBox fx:id="arianeBox" alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" />
               </graphic>
             </TitledPane>
           </expandedPane>

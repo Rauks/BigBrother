@@ -306,7 +306,7 @@ public class BigBrotherGuiController implements Initializable {
                 this.arianeBox.getChildren().add(label);
             }
             else{
-                this.arianeBox.getChildren().add(new Label("[Objet Primitif]"));
+                return;
             }
         } catch (ObservableClassException ex) {
                 this.arianeBox.getChildren().add(new Label("?"));
@@ -315,10 +315,6 @@ public class BigBrotherGuiController implements Initializable {
     }
     
     private void buildAriane(ObservableClass classe){
-        Label labelTitle = new Label("Chaine d'héritage : ");
-        labelTitle.setTextFill(Color.GRAY);
-        this.arianeBox.getChildren().add(labelTitle);
-        
         this.buildArianeStep(classe);
         
         Label label = new Label(classe.getSimpleName());
