@@ -120,6 +120,19 @@ public class ObservableClass {
         return list;
     }
     
+    public ObservableClass getSuperClass() throws ObservableClassException{
+        try{
+            Class superClass = this.classe.getSuperclass();
+            if(superClass == null){
+                return null;
+            }
+            return new ObservableClass(superClass);
+        }
+        catch(NoClassDefFoundError ex){
+            throw new ObservableClassException("Classe indéfinie.");
+        }
+    }
+    
     @Override
     public String toString(){
         return this.getName();
