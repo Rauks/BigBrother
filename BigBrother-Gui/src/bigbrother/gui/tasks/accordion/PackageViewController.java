@@ -74,7 +74,7 @@ public class PackageViewController implements Initializable {
                         super.updateItem(item, empty);
 
                         if (!empty) {
-                            this.setText(item.getName());
+                            this.setText(item.getSimpleName());
 
                             switch(item.getType()){
                                 case ANNOTATION:
