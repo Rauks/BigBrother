@@ -68,7 +68,7 @@ public class TreeNodeController implements Initializable {
                     public void updateItem(ObservableMethod item, boolean empty){
                         super.updateItem(item, empty);
                         if(!empty){
-                            this.setText(item.getName() + "() : " + item.getReturnType().getSimpleName());
+                            this.setText(item.getVisibility().getSymbol() + " " + item.getName() + "() : " + item.getReturnType().getSimpleName());
                             switch(item.getVisibility()){
                                 case PRIVATE:
                                     this.setTextFill(Color.DARKRED);
@@ -103,7 +103,7 @@ public class TreeNodeController implements Initializable {
                     public void updateItem(ObservableField item, boolean empty){
                         super.updateItem(item, empty);
                         if(!empty){
-                            this.setText(item.getName() + " : " + item.getType().getSimpleName());
+                            this.setText(item.getVisibility().getSymbol() + " " + item.getName() + " : " + item.getType().getSimpleName());
                             switch(item.getVisibility()){
                                 case PRIVATE:
                                     this.setTextFill(Color.DARKRED);
