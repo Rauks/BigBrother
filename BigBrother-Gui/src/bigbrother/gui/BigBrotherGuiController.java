@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +36,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.RotateTransition;
 import javafx.animation.RotateTransitionBuilder;
 import javafx.animation.TimelineBuilder;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -46,12 +50,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -76,7 +83,7 @@ public class BigBrotherGuiController implements Initializable {
     @FXML
     public Pane rootPane;
     @FXML
-    public ListView classesList;
+    public Accordion classesList;
     @FXML
     public ScrollPane scrollPane;
     @FXML
@@ -85,7 +92,6 @@ public class BigBrotherGuiController implements Initializable {
     public Label bottomMessage;
     
     private FileChooser jarFileChooser;
-    private ObservableList<ObservableClass> observablesClasses;
     private SimpleBooleanProperty loading;
 
     /**
@@ -106,15 +112,44 @@ public class BigBrotherGuiController implements Initializable {
     public void doScan(String jarFilePath){
         this.loading.set(true);
         this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-        this.observablesClasses.clear();
+        this.classesList.getPanes().clear();
         
         ScannerTask scannerBuilder = new ScannerTask(jarFilePath);
         scannerBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
-                
             Scanner scanner = (Scanner) t.getSource().getValue();
-            BigBrotherGuiController.this.observablesClasses.addAll(scanner.getClasses());
+            
+            HashMap<String, List<ObservableClass>> sortedClasses = new HashMap<>();
+            
+            for(ObservableClass classe : scanner.getClasses()){
+                String packageName = classe.getPackageName();
+                if(!sortedClasses.containsKey(packageName)){
+                    sortedClasses.put(packageName, new ArrayList<ObservableClass>());
+                }
+                sortedClasses.get(packageName).add(classe);
+            }
+            
+            for(Entry<String, List<ObservableClass>> entry : sortedClasses.entrySet()){
+                try {
+                    List<ObservableClass> classes = entry.getValue();
+                    
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PackageView.fxml"));
+                    TitledPane p = (TitledPane) fxmlLoader.load();
+                    PackageViewController pController = fxmlLoader.<PackageViewController>getController();
+                    pController.setParentController(BigBrotherGuiController.this);
+                    pController.setTitle(entry.getKey());
+                    
+                    for(ObservableClass classe : classes){
+                        pController.addObservableClass(classe);
+                    }
+                    
+                    BigBrotherGuiController.this.classesList.getPanes().add(p);
+                } catch (IOException ex) {
+                    Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            BigBrotherGuiController.this.classesList.autosize();
 
             if(scanner.encouredError()){
                 BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKORANGE);
@@ -192,62 +227,6 @@ public class BigBrotherGuiController implements Initializable {
                 new ExtensionFilter("Executables Java", "*.jar")
         );
         
-        this.observablesClasses = FXCollections.observableArrayList();
-        this.classesList.setItems(this.observablesClasses);
-
-        //Class selection
-        this.classesList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if(newValue != null){
-                    System.out.println(newValue);
-                    BigBrotherGuiController.this.loadTreeChart((ObservableClass) newValue);
-                }
-                else{
-                    BigBrotherGuiController.this.unloadTreeChart();
-                }
-            }
-        });
-        this.classesList.setCellFactory(new Callback<ListView<ObservableClass>, ListCell<ObservableClass>>(){
-            @Override
-            public ListCell<ObservableClass> call(ListView<ObservableClass> p) {
-                final Tooltip tooltip = new Tooltip();
-                final ListCell<ObservableClass> cell = new ListCell<ObservableClass>() {
-                    @Override
-                    public void updateItem(ObservableClass item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        if (!empty) {
-                            this.setText(item.getName());
-
-                            switch(item.getType()){
-                                case ANNOTATION:
-                                    this.setTextFill(Color.DARKBLUE);
-                                    break;
-                                case ENUMERATION:
-                                    this.setTextFill(Color.DARKGREEN);
-                                    break;
-                                case INTERFACE:
-                                    this.setTextFill(Color.DARKORANGE);
-                                    break;
-                                case CLASS_ANONYMOUS:
-                                case CLASS_SYNTHETIC:
-                                    this.setTextFill(Color.GRAY);
-                                    break;
-                                default:
-                                    this.setTextFill(Color.BLACK);
-                                    break;
-                            }
-
-                            tooltip.setText(item.getType().getName());
-                            this.setTooltip(tooltip);
-                        }
-                    }
-                }; // ListCell
-                return cell;
-            }
-        });
-        
     }
     
     @FXML
@@ -276,7 +255,7 @@ public class BigBrotherGuiController implements Initializable {
         scrollContent.setScaleY(scale);
     }
     
-    private void loadTreeChart(ObservableClass classe){
+    void loadTreeChart(ObservableClass classe){
         this.loading.set(true);
         this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         

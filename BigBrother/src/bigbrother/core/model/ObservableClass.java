@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -83,6 +84,14 @@ public class ObservableClass {
             return Type.CLASS_SYNTHETIC;
         }
         return Type.CLASS;
+    }
+    
+    public String getPackageName(){
+        Package p = this.classe.getPackage();
+        if(p == null){
+            return "";
+        }
+        return p.getName();
     }
     
     public List<ObservableMethod> getMethods() throws ObservableClassException{
