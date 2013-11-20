@@ -33,6 +33,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
@@ -158,6 +160,7 @@ public class BigBrotherGuiController implements Initializable {
         this.loading = new SimpleBooleanProperty(false);
         
         this.classesList.disableProperty().bind(this.loading);
+        this.classesList.setShowRoot(false);
         this.classesList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<TreeNode>>() {
             @Override
             public void changed(ObservableValue<? extends TreeItem<TreeNode>> observable, TreeItem<TreeNode> oldValue, TreeItem<TreeNode> newValue) {
@@ -172,6 +175,8 @@ public class BigBrotherGuiController implements Initializable {
             }
         });
         this.classesList.setCellFactory(new Callback<TreeView<TreeNode>, TreeCell<TreeNode>>(){
+            private Image nodeImage = new Image(BigBrotherGuiController.class.getResourceAsStream("folder.png"));
+            
             @Override
             public TreeCell<TreeNode> call(TreeView<TreeNode> p) {
                 final Tooltip tooltip = new Tooltip();
@@ -183,6 +188,7 @@ public class BigBrotherGuiController implements Initializable {
                         if (!empty) {
                             if(item.isPackage()){
                                 this.setText(item.getPackageName());
+                                this.setGraphic(new ImageView(nodeImage));
                             }
                             else{
                                 this.setText(item.getObservableClass().getSimpleName());
