@@ -51,6 +51,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -66,6 +67,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -94,6 +96,8 @@ public class BigBrotherGuiController implements Initializable {
     public ProgressBar progressBar;
     @FXML
     public Label bottomMessage;
+    @FXML
+    public HBox arianeBox;
     
     private FileChooser jarFileChooser;
     private SimpleBooleanProperty loading;
@@ -249,7 +253,7 @@ public class BigBrotherGuiController implements Initializable {
         scrollContent.setScaleY(scale);
     }
     
-    public void loadTreeChart(ObservableClass classe){
+    public void loadTreeChart(final ObservableClass classe){
         this.loading.set(true);
         this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         
@@ -265,6 +269,9 @@ public class BigBrotherGuiController implements Initializable {
                 BigBrotherGuiController.this.scrollPane.setContent(treeChart.getTreePane());
                 BigBrotherGuiController.this.bottomMessage.setTextFill(treeChart.getMessageColor());
                 BigBrotherGuiController.this.bottomMessage.setText(treeChart.getMessage());
+                
+                BigBrotherGuiController.this.cleanAriane();
+                BigBrotherGuiController.this.buildAriane(classe);
 
                 BigBrotherGuiController.this.progressBar.setProgress(1.0d);
                 BigBrotherGuiController.this.loading.set(false);
@@ -281,6 +288,45 @@ public class BigBrotherGuiController implements Initializable {
             }
         });
         new Thread(treeBuilder).start();
+    }
+    
+    private void buildArianeStep(ObservableClass classe){
+        try {
+            final ObservableClass superClass = classe.getSuperClass();
+            if(superClass != null){
+                this.buildArianeStep(superClass);
+                Label label = new Label(superClass.getSimpleName());
+                label.setCursor(Cursor.HAND);
+                label.setOnMouseClicked(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent t) {
+                        BigBrotherGuiController.this.loadTreeChart(superClass);
+                    }
+                });
+                this.arianeBox.getChildren().add(label);
+            }
+            else{
+                this.arianeBox.getChildren().add(new Label("[Objet Primitif]"));
+            }
+        } catch (ObservableClassException ex) {
+                this.arianeBox.getChildren().add(new Label("?"));
+        }
+        this.arianeBox.getChildren().add(new Label(" > "));
+    }
+    
+    private void buildAriane(ObservableClass classe){
+        Label labelTitle = new Label("Chaine d'héritage : ");
+        labelTitle.setTextFill(Color.GRAY);
+        this.arianeBox.getChildren().add(labelTitle);
+        
+        this.buildArianeStep(classe);
+        
+        Label label = new Label(classe.getSimpleName());
+        label.setUnderline(true);
+        this.arianeBox.getChildren().add(label);
+    }
+    private void cleanAriane(){
+        this.arianeBox.getChildren().clear();
     }
     
     /**
