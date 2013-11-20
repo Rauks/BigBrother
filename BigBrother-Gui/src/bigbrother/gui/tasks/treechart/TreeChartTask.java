@@ -69,22 +69,36 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
     }
     
     /**
-     * Build a node with informations of a {@link ObservableClass}.
+     * Build a node with informations of a {@link ObservableClass} with a custom title prefix.
      * 
      * @param classe The classe used to build the node.
+     * @param titlePrefix The title prefix.
      * @return A Node with class informations.
      */
-    private Node loadTreeNode(ObservableClass classe){
+    private Node loadTreeNode(ObservableClass classe, String titlePrefix){
         Node element = null;
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TreeNode.fxml"));
             element = (Node) fxmlLoader.load();
             TreeNodeController elementController = fxmlLoader.<TreeNodeController>getController();
             elementController.setObservation(classe);
+            if(titlePrefix != null){
+                elementController.setTitlePrefix(titlePrefix);
+            }
         } catch (IOException ex) {
             Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return element;
+    }
+    
+    /**
+     * Build a node with informations of a {@link ObservableClass}.
+     * 
+     * @param classe The classe used to build the node.
+     * @return A Node with class informations.
+     */
+    private Node loadTreeNode(ObservableClass classe){
+        return loadTreeNode(classe, null);
     }
     
     /**
@@ -131,7 +145,7 @@ public class TreeChartTask extends Task<TreeChartTask.BuildedTreeChart>{
                     }
                     else{
                         ObservableClass fieldType = field.getType();
-                        final Node node = this.loadTreeNode(fieldType);
+                        final Node node = this.loadTreeNode(fieldType, field.getName().concat(" : "));
                         treePane.addChild(node, position);
                         this.loadTreeNodeChildren(fieldType, treePane, position, maxChildren, maxLevel);
                     }

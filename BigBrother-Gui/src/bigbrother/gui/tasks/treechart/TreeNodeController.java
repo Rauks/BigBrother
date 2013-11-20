@@ -47,6 +47,7 @@ public class TreeNodeController implements Initializable {
     private ObservableList<ObservableField> observablesFields;
     private ObservableList<ObservableMethod> observablesMethods;
     private SimpleStringProperty title;
+    private SimpleStringProperty titlePre;
     
     /**
      * Initializes the controller class.
@@ -123,8 +124,9 @@ public class TreeNodeController implements Initializable {
             }
         });
         
-        this.title = new SimpleStringProperty("Element");
-        this.titlePane.textProperty().bind(this.title);
+        this.title = new SimpleStringProperty("");
+        this.titlePre = new SimpleStringProperty("");
+        this.titlePane.textProperty().bind(this.titlePre.concat(this.title));
     }    
     
     /**
@@ -149,5 +151,9 @@ public class TreeNodeController implements Initializable {
             this.observablesFields.clear();
             this.fieldsList.setDisable(true);
         }
+    }
+    
+    public void setTitlePrefix(String prefix){
+        this.titlePre.set(prefix);
     }
 }
