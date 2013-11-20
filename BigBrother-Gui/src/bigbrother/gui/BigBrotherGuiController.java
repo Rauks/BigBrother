@@ -116,6 +116,7 @@ public class BigBrotherGuiController implements Initializable {
         this.loading.set(true);
         this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         this.classesList.getPanes().clear();
+        this.unloadTreeChart();
         
         ScannerTask scannerBuilder = new ScannerTask(jarFilePath);
         scannerBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
