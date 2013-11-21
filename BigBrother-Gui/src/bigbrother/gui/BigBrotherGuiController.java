@@ -365,6 +365,7 @@ public class BigBrotherGuiController implements Initializable {
      * Clear the tree chart view.
      */
     public void unloadTreeChart(){
+        this.cleanAriane();
         this.scrollPane.setContent(new Pane());
     }
 }
