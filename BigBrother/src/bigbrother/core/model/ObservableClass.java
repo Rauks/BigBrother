@@ -133,6 +133,19 @@ public class ObservableClass{
         }
     }
     
+    public List<ObservableClass> getInterfaces() throws ObservableClassException{
+        List<ObservableClass> list = new ArrayList<>();
+        try{
+            for(Class impl : this.classe.getInterfaces()){
+                list.add(new ObservableClass(impl));
+            }
+        }
+        catch(NoClassDefFoundError ex){
+            throw new ObservableClassException("Classe indéfinie.");
+        }
+        return list;
+    }
+    
     @Override
     public String toString(){
         return this.getName();
