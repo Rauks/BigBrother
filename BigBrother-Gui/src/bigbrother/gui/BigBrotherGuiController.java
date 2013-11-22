@@ -15,7 +15,11 @@ import bigbrother.gui.tasks.scanner.ScannerTask;
 import bigbrother.gui.tasks.treechart.TreeChartTask;
 import java.io.File;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -29,6 +33,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -66,6 +71,10 @@ public class BigBrotherGuiController implements Initializable {
     public Label bottomMessage;
     @FXML
     public HBox arianeBox;
+    @FXML
+    public HBox implementsBox;
+    @FXML
+    public Label elementName;
     
     private FileChooser jarFileChooser;
     private SimpleBooleanProperty loading;
@@ -158,6 +167,10 @@ public class BigBrotherGuiController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         this.loading = new SimpleBooleanProperty(false);
+        
+        this.scrollPane.setScaleX(1d);
+        this.scrollPane.setScaleY(1d);
+        this.scrollPane.setScaleZ(1d);
         
         this.classesList.disableProperty().bind(this.loading);
         this.classesList.setShowRoot(false);
@@ -296,6 +309,8 @@ public class BigBrotherGuiController implements Initializable {
         this.bottomMessage.setText("");
         this.unloadTreeChart();
         
+        this.elementName.setText(classe.getSimpleName());
+        
         TreeChartTask treeBuilder = new TreeChartTask(classe, this);
         this.progressBar.progressProperty().bind(treeBuilder.progressProperty());
         treeBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
@@ -309,6 +324,7 @@ public class BigBrotherGuiController implements Initializable {
                 
                 BigBrotherGuiController.this.cleanAriane();
                 BigBrotherGuiController.this.buildAriane(classe);
+                BigBrotherGuiController.this.buildImplements(classe);
 
                 BigBrotherGuiController.this.loading.set(false);
             }
@@ -361,11 +377,40 @@ public class BigBrotherGuiController implements Initializable {
         this.arianeBox.getChildren().clear();
     }
     
+    private void buildImplements(ObservableClass classe){
+        try {
+            for(Iterator<ObservableClass> it = classe.getInterfaces().iterator(); it.hasNext();){
+                final ObservableClass impl = it.next();
+                Label label = new Label(impl.getSimpleName());
+                label.setCursor(Cursor.HAND);
+                label.setOnMouseClicked(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent t) {
+                        BigBrotherGuiController.this.loadTreeChart(impl);
+                    }
+                });
+                this.implementsBox.getChildren().add(label);
+                if(it.hasNext()){
+                    this.implementsBox.getChildren().add(new Label(", "));
+                }
+            }
+            
+        } catch (ObservableClassException ex) {
+            this.implementsBox.getChildren().add(new Label("?"));
+            Logger.getLogger(BigBrotherGuiController.class.getName()).log(Level.INFO, null, ex);
+        }
+    }
+    private void clearImplements(){
+        this.implementsBox.getChildren().clear();
+    }
+    
     /**
      * Clear the tree chart view.
      */
     public void unloadTreeChart(){
         this.cleanAriane();
+        this.clearImplements();
+        this.elementName.setText("Element");
         this.scrollPane.setContent(new Pane());
     }
 }
