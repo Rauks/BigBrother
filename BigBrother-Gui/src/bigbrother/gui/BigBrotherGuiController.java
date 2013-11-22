@@ -111,7 +111,7 @@ public class BigBrotherGuiController implements Initializable {
                     BigBrotherGuiController.this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
                 }
 
-                TreeViewTask accordionBuilder = new TreeViewTask(BigBrotherGuiController.this, scanner.getClasses(), scanner.getJarName());
+                TreeViewTask accordionBuilder = new TreeViewTask(scanner.getClasses(), scanner.getJarName());
                 accordionBuilder.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent t) {

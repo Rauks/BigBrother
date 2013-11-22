@@ -22,14 +22,12 @@ import javafx.scene.control.TreeItem;
  */
 public class TreeViewTask extends Task<TreeItem<TreeNode>>{
     private final List<ObservableClass> classes;
-    private final BigBrotherGuiController caller;
     private final TreeItem<TreeNode> root;
     
     private final HashMap<String, TreeItem<TreeNode>> nodesDictionary = new HashMap<>();
     
-    public TreeViewTask(BigBrotherGuiController caller, List<ObservableClass> classes, String rootName) {
+    public TreeViewTask(List<ObservableClass> classes, String rootName) {
         this.classes = classes;
-        this.caller = caller;
         this.root = new TreeItem<>(new TreeNode(rootName));
     }
     
