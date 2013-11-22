@@ -212,6 +212,7 @@ public class BigBrotherGuiController implements Initializable {
                             else{
                                 this.setText(item.getObservableClass().getSimpleName());
                                 iv.setImage(classImage);
+                                iv.setOpacity(0.5d);
 
                                 switch(item.getObservableClass().getType()){
                                     case ANNOTATION:
