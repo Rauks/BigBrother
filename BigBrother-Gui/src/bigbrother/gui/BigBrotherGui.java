@@ -19,8 +19,10 @@ import javafx.stage.Stage;
 public class BigBrotherGui extends Application {
     
     @Override
-    public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("BigBrotherGui.fxml"));
+    public void start(Stage stage) throws Exception {FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("BigBrotherGui.fxml"));
+        Parent root = (Parent) fxmlLoader.load();
+        BigBrotherGuiController controller = fxmlLoader.<BigBrotherGuiController>getController();
+        controller.setStage(stage);
         
         Scene scene = new Scene(root);
         

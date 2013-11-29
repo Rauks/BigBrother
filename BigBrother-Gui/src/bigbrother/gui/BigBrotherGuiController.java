@@ -47,7 +47,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import javafx.util.Callback;
+import net.kirauks.javafx.dialog.Dialog;
 
 /**
  * FXML Controller class
@@ -109,6 +111,7 @@ public class BigBrotherGuiController implements Initializable {
                 if(scanner.encouredError()){
                     BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKORANGE);
                     BigBrotherGuiController.this.bottomMessage.setText("Exploration incomplète : Certaines classes n'ont pas pu être chargées.");
+                    new Dialog("Exploration incomplète : Certaines classes n'ont pas pu être chargées.", null, Dialog.DialogType.WARNING, Dialog.DialogOptions.OK, BigBrotherGuiController.this.getStage()).showAndWait();
                 }
 
                 TreeViewTask accordionBuilder = new TreeViewTask(scanner.getClasses(), scanner.getJarName());
@@ -126,6 +129,7 @@ public class BigBrotherGuiController implements Initializable {
                     public void handle(WorkerStateEvent t) {
                         BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKORANGE);
                         BigBrotherGuiController.this.bottomMessage.setText("Erreur de construction de la liste des packages.");
+                        new Dialog("Erreur de construction de la liste des packages.", null, Dialog.DialogType.ERROR, Dialog.DialogOptions.OK, BigBrotherGuiController.this.getStage()).showAndWait();
 
                         BigBrotherGuiController.this.progressBar.setProgress(1d);
                         BigBrotherGuiController.this.loading.set(false);
@@ -322,6 +326,9 @@ public class BigBrotherGuiController implements Initializable {
                 BigBrotherGuiController.this.scrollPane.setContent(treeChart.getTreePane());
                 BigBrotherGuiController.this.bottomMessage.setTextFill(treeChart.getMessageColor());
                 BigBrotherGuiController.this.bottomMessage.setText(treeChart.getMessage());
+                if(!treeChart.getMessage().isEmpty()){
+                    new Dialog(treeChart.getMessage(), null, Dialog.DialogType.WARNING, Dialog.DialogOptions.OK, BigBrotherGuiController.this.getStage()).showAndWait();
+                }
                 
                 BigBrotherGuiController.this.cleanAriane();
                 BigBrotherGuiController.this.buildAriane(classe);
@@ -335,6 +342,7 @@ public class BigBrotherGuiController implements Initializable {
             public void handle(WorkerStateEvent t) {
                 BigBrotherGuiController.this.bottomMessage.setTextFill(Color.DARKRED);
                 BigBrotherGuiController.this.bottomMessage.setText("Erreur de construction de l'arbre.");
+                new Dialog("Erreur de construction de l'arbre.", null, Dialog.DialogType.WARNING, Dialog.DialogOptions.OK, BigBrotherGuiController.this.getStage()).showAndWait();
                 
                 BigBrotherGuiController.this.progressBar.setProgress(1.0d);
                 BigBrotherGuiController.this.loading.set(false);
@@ -413,5 +421,13 @@ public class BigBrotherGuiController implements Initializable {
         this.clearImplements();
         this.elementName.setText("Element");
         this.scrollPane.setContent(new Pane());
+    }
+    
+    private Stage stage;
+    public void setStage(Stage stage){
+        this.stage = stage;
+    }
+    public Stage getStage(){
+        return this.stage;
     }
 }
